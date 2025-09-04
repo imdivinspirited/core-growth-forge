@@ -1,12 +1,71 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navbar from "@/components/layout/Navbar";
+import HeroBanner from "@/components/home/HeroBanner";
+import FeaturedContent from "@/components/home/FeaturedContent";
+import PortfolioSnapshot from "@/components/home/PortfolioSnapshot";
+import QuickAccessTools from "@/components/home/QuickAccessTools";
+import TrendingContent from "@/components/home/TrendingContent";
+import AnnouncementsPanel from "@/components/home/AnnouncementsPanel";
+import MiniDashboard from "@/components/home/MiniDashboard";
+import InteractiveElements from "@/components/home/InteractiveElements";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main>
+        <HeroBanner />
+        <FeaturedContent />
+        <PortfolioSnapshot />
+        <QuickAccessTools />
+        <TrendingContent />
+        <AnnouncementsPanel />
+        <MiniDashboard />
+        <InteractiveElements />
+      </main>
+      
+      {/* Footer */}
+      <footer className="bg-navy text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">BrandSpace</h3>
+              <p className="text-white/80 text-sm">
+                Empowering professionals to build their personal brand and advance their careers.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Platform</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>Courses</li>
+                <li>Workshops</li>
+                <li>Portfolio</li>
+                <li>Tools</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Community</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>Blog</li>
+                <li>Forums</li>
+                <li>Events</li>
+                <li>Mentorship</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Support</h4>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Privacy</li>
+                <li>Terms</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
+            <p>&copy; 2024 BrandSpace. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
