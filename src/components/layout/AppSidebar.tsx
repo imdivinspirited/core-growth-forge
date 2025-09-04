@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "next-themes";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 import {
   Sidebar,
@@ -89,11 +88,10 @@ const mainNavItems = [
 ];
 
 export function AppSidebar() {
-  const { state, open, setOpen } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const isMobile = useIsMobile();
   
   const currentPath = location.hash || "#home";
 
@@ -131,34 +129,21 @@ export function AppSidebar() {
   };
 
   const collapsed = state === "collapsed";
-  const isHidden = !open;
-
-  // Auto-close sidebar on mobile when route changes
-  useEffect(() => {
-    if (isMobile && open) {
-      setOpen(false);
-    }
-  }, [currentPath, isMobile, open, setOpen]);
 
   return (
     <Sidebar
       className={`${
-        isHidden ? (isMobile ? "-translate-x-full w-0" : "w-0") : 
-        collapsed ? (isMobile ? "w-full" : "w-16") : 
-        isMobile ? "w-full" : "w-64"
-      } transition-all duration-300 ease-in-out shadow-lg border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm
-      ${isMobile ? "fixed left-0 top-0 h-full z-50" : "relative"}
-      ${isHidden ? "pointer-events-none" : "pointer-events-auto"}
-      overflow-hidden`}
-      collapsible={isMobile ? "none" : "icon"}
+        collapsed ? "w-16" : "w-64"
+      } transition-all duration-300 ease-in-out shadow-lg border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm`}
+      collapsible="icon"
     >
       {/* Header with Logo */}
-      <SidebarHeader className={`border-b border-sidebar-border/50 p-4 ${isHidden ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}>
+      <SidebarHeader className="border-b border-sidebar-border/50 p-4">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-br from-primary to-primary-glow p-2 rounded-lg shadow-md">
             <User className="h-6 w-6 text-white" />
           </div>
-          {(!collapsed || isMobile) && !isHidden && (
+          {!collapsed && (
             <div className="flex flex-col">
               <span className="text-lg font-bold text-sidebar-foreground">BrandSpace</span>
               <span className="text-xs text-sidebar-foreground/60">Professional Platform</span>
@@ -167,9 +152,9 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className={`px-2 py-4 ${isHidden ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}>
+      <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className={(collapsed && !isMobile) || isHidden ? "sr-only" : "text-sidebar-foreground/60 text-xs font-semibold uppercase tracking-wide mb-2"}>
+          <SidebarGroupLabel className={collapsed ? "sr-only" : "text-sidebar-foreground/60 text-xs font-semibold uppercase tracking-wide mb-2"}>
             Navigation
           </SidebarGroupLabel>
           
@@ -185,12 +170,9 @@ export function AppSidebar() {
                     {hasSubItems ? (
                       <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(item.title)}>
                         <CollapsibleTrigger asChild>
-                          <SidebarMenuButton 
-                            className={getNavClasses(parentActive)}
-                            disabled={isHidden}
-                          >
+                          <SidebarMenuButton className={getNavClasses(parentActive)}>
                             <item.icon className="h-4 w-4 flex-shrink-0" />
-                            {(!collapsed || isMobile) && !isHidden && (
+                            {!collapsed && (
                               <>
                                 <span className="flex-1 text-left">{item.title}</span>
                                 {item.badge && (
@@ -208,7 +190,7 @@ export function AppSidebar() {
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         
-                        {(!collapsed || isMobile) && !isHidden && (
+                        {!collapsed && (
                           <CollapsibleContent className="ml-4 mt-1">
                             <SidebarMenuSub>
                               {item.subItems.map((subItem) => (
@@ -217,11 +199,7 @@ export function AppSidebar() {
                                     asChild 
                                     className={getNavClasses(isActive(subItem.href))}
                                   >
-                                    <a 
-                                      href={subItem.href} 
-                                      className="flex items-center space-x-2 py-1.5"
-                                      onClick={isMobile ? () => setOpen(false) : undefined}
-                                    >
+                                    <a href={subItem.href} className="flex items-center space-x-2 py-1.5">
                                       <subItem.icon className="h-3 w-3" />
                                       <span>{subItem.title}</span>
                                     </a>
@@ -233,18 +211,10 @@ export function AppSidebar() {
                         )}
                       </Collapsible>
                     ) : (
-                      <SidebarMenuButton 
-                        asChild 
-                        className={getNavClasses(isActive(item.href))}
-                        disabled={isHidden}
-                      >
-                        <a 
-                          href={item.href} 
-                          className="flex items-center space-x-2"
-                          onClick={isMobile ? () => setOpen(false) : undefined}
-                        >
+                      <SidebarMenuButton asChild className={getNavClasses(isActive(item.href))}>
+                        <a href={item.href} className="flex items-center space-x-2">
                           <item.icon className="h-4 w-4 flex-shrink-0" />
-                          {(!collapsed || isMobile) && !isHidden && (
+                          {!collapsed && (
                             <>
                               <span className="flex-1">{item.title}</span>
                               {item.badge && (
@@ -266,21 +236,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Footer with Settings and Theme Toggle */}
-      <SidebarFooter className={`border-t border-sidebar-border/50 p-2 ${isHidden ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}>
+      <SidebarFooter className="border-t border-sidebar-border/50 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              asChild 
-              className={getNavClasses(false)}
-              disabled={isHidden}
-            >
-              <a 
-                href="#settings" 
-                className="flex items-center space-x-2"
-                onClick={isMobile ? () => setOpen(false) : undefined}
-              >
+            <SidebarMenuButton asChild className={getNavClasses(false)}>
+              <a href="#settings" className="flex items-center space-x-2">
                 <Settings className="h-4 w-4 flex-shrink-0" />
-                {(!collapsed || isMobile) && !isHidden && <span>Settings</span>}
+                {!collapsed && <span>Settings</span>}
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -291,14 +253,13 @@ export function AppSidebar() {
               size="sm"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className={`w-full justify-start ${getNavClasses(false)} border-0`}
-              disabled={isHidden}
             >
               {theme === "dark" ? (
                 <Sun className="h-4 w-4 flex-shrink-0" />
               ) : (
                 <Moon className="h-4 w-4 flex-shrink-0" />
               )}
-              {(!collapsed || isMobile) && !isHidden && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
+              {!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
