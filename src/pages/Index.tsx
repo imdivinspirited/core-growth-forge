@@ -1,4 +1,6 @@
-import Navbar from "@/components/layout/Navbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import HeroBanner from "@/components/home/HeroBanner";
 import FeaturedContent from "@/components/home/FeaturedContent";
 import PortfolioSnapshot from "@/components/home/PortfolioSnapshot";
@@ -10,9 +12,19 @@ import InteractiveElements from "@/components/home/InteractiveElements";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main>
+    <ThemeProvider defaultTheme="light">
+      <SidebarProvider>
+        <div className="min-h-screen w-full flex bg-background">
+          <AppSidebar />
+          
+          <div className="flex-1 flex flex-col">
+            {/* Top Header with Sidebar Toggle */}
+            <header className="h-12 flex items-center border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40 px-4">
+              <SidebarTrigger className="mr-4" />
+              <h1 className="text-lg font-semibold text-foreground">BrandSpace Dashboard</h1>
+            </header>
+            
+            <main className="flex-1 overflow-auto">
         <HeroBanner />
         <FeaturedContent />
         <PortfolioSnapshot />
@@ -65,8 +77,11 @@ const Index = () => {
             <p>&copy; 2024 BrandSpace. All rights reserved.</p>
           </div>
         </div>
-      </footer>
-    </div>
+            </footer>
+          </div>
+        </div>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 };
 
