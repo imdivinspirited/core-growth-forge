@@ -2,10 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const ContactInfo = () => {
+const ContactInfo = ({ profile, onUpdate }) => {
   const contactDetails = {
-    email: "john.developer@email.com",
-    phone: "+1 (555) 123-4567",
+    email: profile?.email || "john.developer@email.com",
+    phone: profile?.phone || "+1 (555) 123-4567",
     location: "San Francisco, CA",
     socialLinks: [
       { platform: "LinkedIn", url: "https://linkedin.com/in/johndeveloper", icon: Linkedin },

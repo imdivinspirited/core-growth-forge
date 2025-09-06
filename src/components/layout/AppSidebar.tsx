@@ -16,7 +16,7 @@ import {
   Award,
   Users
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, NavLink } from "react-router-dom";
 import { useTheme } from "next-themes";
 
 import {
@@ -41,48 +41,28 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 const mainNavItems = [
   { 
     title: "Home", 
-    href: "#home", 
+    href: "/", 
     icon: Home,
     badge: "new"
   },
   { 
     title: "Profile", 
-    href: "#profile", 
+    href: "/profile", 
     icon: User,
     subItems: [
-      { title: "My Profile", href: "#profile/me", icon: User },
-      { title: "Portfolio", href: "#profile/portfolio", icon: FileText },
-      { title: "Achievements", href: "#profile/achievements", icon: Award }
+      { title: "My Profile", href: "/profile", icon: User },
+      { title: "Portfolio", href: "/profile#portfolio", icon: FileText },
+      { title: "Achievements", href: "/profile#achievements", icon: Award }
     ]
   },
   { 
     title: "SkillSpace", 
-    href: "#skillspace", 
+    href: "/skillspace", 
     icon: BookOpen,
     subItems: [
-      { title: "Courses", href: "#skillspace/courses", icon: GraduationCap },
-      { title: "Learning Path", href: "#skillspace/path", icon: FileText },
-      { title: "Certifications", href: "#skillspace/certs", icon: Award }
-    ]
-  },
-  { 
-    title: "ThinkSpace", 
-    href: "#thinkspace", 
-    icon: Lightbulb,
-    subItems: [
-      { title: "Blog Posts", href: "#thinkspace/blog", icon: FileText },
-      { title: "Ideas", href: "#thinkspace/ideas", icon: Lightbulb },
-      { title: "Community", href: "#thinkspace/community", icon: Users }
-    ]
-  },
-  { 
-    title: "Workshop", 
-    href: "#workshop", 
-    icon: Hammer,
-    subItems: [
-      { title: "Upcoming Events", href: "#workshop/events", icon: Calendar },
-      { title: "My Workshops", href: "#workshop/my", icon: Hammer },
-      { title: "Resources", href: "#workshop/resources", icon: FileText }
+      { title: "All Courses", href: "/skillspace", icon: GraduationCap },
+      { title: "My Progress", href: "/skillspace#progress", icon: FileText },
+      { title: "Certificates", href: "/skillspace#certificates", icon: Award }
     ]
   },
 ];
@@ -93,7 +73,7 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   
-  const currentPath = location.hash || "#home";
+  const currentPath = location.pathname + (location.hash || "");
 
   const isActive = (path: string) => currentPath === path;
   const isParentActive = (item: any) => {
@@ -195,14 +175,14 @@ export function AppSidebar() {
                             <SidebarMenuSub>
                               {item.subItems.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.title}>
-                                  <SidebarMenuSubButton 
+                                   <SidebarMenuSubButton 
                                     asChild 
                                     className={getNavClasses(isActive(subItem.href))}
                                   >
-                                    <a href={subItem.href} className="flex items-center space-x-2 py-1.5">
+                                    <NavLink to={subItem.href} className="flex items-center space-x-2 py-1.5">
                                       <subItem.icon className="h-3 w-3" />
                                       <span>{subItem.title}</span>
-                                    </a>
+                                    </NavLink>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
                               ))}
@@ -212,7 +192,7 @@ export function AppSidebar() {
                       </Collapsible>
                     ) : (
                       <SidebarMenuButton asChild className={getNavClasses(isActive(item.href))}>
-                        <a href={item.href} className="flex items-center space-x-2">
+                        <NavLink to={item.href} className="flex items-center space-x-2">
                           <item.icon className="h-4 w-4 flex-shrink-0" />
                           {!collapsed && (
                             <>
@@ -224,7 +204,7 @@ export function AppSidebar() {
                               )}
                             </>
                           )}
-                        </a>
+                        </NavLink>
                       </SidebarMenuButton>
                     )}
                   </SidebarMenuItem>
@@ -240,10 +220,10 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className={getNavClasses(false)}>
-              <a href="#settings" className="flex items-center space-x-2">
+              <NavLink to="/settings" className="flex items-center space-x-2">
                 <Settings className="h-4 w-4 flex-shrink-0" />
                 {!collapsed && <span>Settings</span>}
-              </a>
+              </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
