@@ -14,6 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_categories: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      blogs: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured: boolean | null
+          id: string
+          language: string | null
+          like_count: number | null
+          published: boolean | null
+          reading_time: number | null
+          share_count: number | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id: string
+          category?: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean | null
+          id?: string
+          language?: string | null
+          like_count?: number | null
+          published?: boolean | null
+          reading_time?: number | null
+          share_count?: number | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean | null
+          id?: string
+          language?: string | null
+          like_count?: number | null
+          published?: boolean | null
+          reading_time?: number | null
+          share_count?: number | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      bookmarks: {
+        Row: {
+          blog_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blog_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blog_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          category: string
+          comment_count: number | null
+          content: string
+          created_at: string
+          id: string
+          poll_options: Json | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          vote_count: number | null
+        }
+        Insert: {
+          author_id: string
+          category?: string
+          comment_count?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          poll_options?: Json | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          type?: string
+          updated_at?: string
+          vote_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          comment_count?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          poll_options?: Json | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          vote_count?: number | null
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           category: string
