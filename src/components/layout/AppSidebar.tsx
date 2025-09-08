@@ -14,7 +14,8 @@ import {
   FileText,
   Calendar,
   Award,
-  Users
+  Users,
+  PenTool
 } from "lucide-react";
 import { useLocation, NavLink } from "react-router-dom";
 import { useTheme } from "next-themes";
@@ -63,6 +64,16 @@ const mainNavItems = [
       { title: "All Courses", href: "/skillspace", icon: GraduationCap },
       { title: "My Progress", href: "/skillspace#progress", icon: FileText },
       { title: "Certificates", href: "/skillspace#certificates", icon: Award }
+    ]
+  },
+  { 
+    title: "ThinkSpace", 
+    href: "/thinkspace", 
+    icon: PenTool,
+    subItems: [
+      { title: "All Blogs", href: "/thinkspace", icon: FileText },
+      { title: "Community", href: "/thinkspace#community", icon: Users },
+      { title: "My Bookmarks", href: "/thinkspace#bookmarks", icon: BookOpen }
     ]
   },
 ];
