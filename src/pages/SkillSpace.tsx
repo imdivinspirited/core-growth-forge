@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,7 +135,15 @@ const SkillSpace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex bg-background">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          {/* Minimal Header with Sidebar Toggle */}
+          <header className="h-12 flex items-center border-b border-border/50 bg-background/95 backdrop-blur-md sticky top-0 z-40 px-4">
+            <SidebarTrigger className="mr-4" />
+          </header>
+          <div className="flex-1 bg-background">
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background py-12 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -351,7 +361,10 @@ const SkillSpace = () => {
 
       {/* Progress Tracker */}
       <ProgressTracker userProgress={userProgress} />
-    </div>
+          </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 

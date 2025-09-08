@@ -181,7 +181,10 @@ export const BlogListing = ({ searchQuery }: BlogListingProps) => {
             </SelectContent>
           </Select>
 
-          <Button className="flex items-center gap-2">
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => window.location.href = '/thinkspace/write'}
+          >
             <Plus className="h-4 w-4" />
             Write Blog
           </Button>

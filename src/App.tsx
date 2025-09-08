@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import SkillSpace from "./pages/SkillSpace";
 import ThinkSpace from "./pages/ThinkSpace";
+import BlogWriter from "./components/thinkspace/BlogWriter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/skillspace" element={<SkillSpace />} />
           <Route path="/thinkspace" element={<ThinkSpace />} />
+          <Route path="/thinkspace/write" element={<BlogWriter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

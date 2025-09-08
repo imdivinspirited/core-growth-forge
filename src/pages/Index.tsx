@@ -18,10 +18,9 @@ const Index = () => {
           <AppSidebar />
           
           <div className="flex-1 flex flex-col">
-            {/* Top Header with Sidebar Toggle */}
-            <header className="h-12 flex items-center border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40 px-4">
+            {/* Minimal Header with Sidebar Toggle */}
+            <header className="h-12 flex items-center border-b border-border/50 bg-background/95 backdrop-blur-md sticky top-0 z-40 px-4">
               <SidebarTrigger className="mr-4" />
-              <h1 className="text-lg font-semibold text-foreground">BrandSpace Dashboard</h1>
             </header>
             
             <main className="flex-1 overflow-auto">

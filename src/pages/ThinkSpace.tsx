@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import Navbar from "@/components/layout/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlogListing } from "@/components/thinkspace/BlogListing";
 import { CommunitySection } from "@/components/thinkspace/CommunitySection";
@@ -19,7 +18,10 @@ const ThinkSpace = () => {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <Navbar />
+          {/* Minimal Header with Sidebar Toggle */}
+          <header className="h-12 flex items-center border-b border-border/50 bg-background/95 backdrop-blur-md sticky top-0 z-40 px-4">
+            <SidebarTrigger className="mr-4" />
+          </header>
           <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="mb-8">
