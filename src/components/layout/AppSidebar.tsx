@@ -15,7 +15,8 @@ import {
   Calendar,
   Award,
   Users,
-  PenTool
+  PenTool,
+  Brain
 } from "lucide-react";
 import { useLocation, NavLink } from "react-router-dom";
 import { useTheme } from "next-themes";
