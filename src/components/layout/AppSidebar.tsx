@@ -16,10 +16,12 @@ import {
   Award,
   Users,
   PenTool,
-  Brain
+  Brain,
+  LogOut
 } from "lucide-react";
 import { useLocation, NavLink } from "react-router-dom";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Sidebar,
@@ -83,9 +85,14 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   
   const currentPath = location.pathname + (location.hash || "");
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const isActive = (path: string) => currentPath === path;
   const isParentActive = (item: any) => {
@@ -254,6 +261,20 @@ export function AppSidebar() {
               {!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
             </Button>
           </SidebarMenuItem>
+
+          {user && (
+            <SidebarMenuItem>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className={`w-full justify-start ${getNavClasses(false)} border-0`}
+              >
+                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {!collapsed && <span>Sign Out</span>}
+              </Button>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

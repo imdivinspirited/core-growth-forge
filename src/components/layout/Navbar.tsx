@@ -1,17 +1,25 @@
 import { useState } from "react";
-import { Menu, X, User, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, X, User, Settings, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { GlobalSearch } from "@/components/search/GlobalSearch";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const navItems = [
-    { label: "Home", href: "#home" },
-    { label: "Profile", href: "#profile" },
-    { label: "SkillSpace", href: "#skillspace" },
-    { label: "ThinkSpace", href: "#thinkspace" },
-    { label: "Workshop", href: "#workshop" },
+    { label: "Home", href: "/" },
+    { label: "Profile", href: "/profile" },
+    { label: "SkillSpace", href: "/skillspace" },
+    { label: "ThinkSpace", href: "/thinkspace" },
+    { label: "Workshop", href: "/workshop" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <nav className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
@@ -28,25 +36,37 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="text-muted-foreground hover:text-primary transition-colors duration-200"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-            <Button variant="default" size="sm">
-              Get Started
-            </Button>
+          <div className="hidden md:flex items-center space-x-4 gap-2">
+            <GlobalSearch />
+            {user ? (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/settings">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button variant="default" size="sm" asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -66,23 +86,34 @@ const Navbar = () => {
           <div className="md:hidden pb-4 border-t border-border mt-4 pt-4">
             <div className="flex flex-col space-y-3">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.label}
-                  href={item.href}
+                  to={item.href}
                   className="text-muted-foreground hover:text-primary transition-colors duration-200 py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
               <div className="pt-4 space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-                <Button variant="default" size="sm" className="w-full">
-                  Get Started
-                </Button>
+                {user ? (
+                  <>
+                    <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                      <Link to="/settings">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="default" size="sm" className="w-full" asChild>
+                    <Link to="/auth">Sign In</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
