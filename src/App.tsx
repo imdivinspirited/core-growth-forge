@@ -14,6 +14,9 @@ import Workshop from "./pages/Workshop";
 import Settings from "./pages/Settings";
 import BlogWriter from "./components/thinkspace/BlogWriter";
 import NotFound from "./pages/NotFound";
+import Chat from "./pages/Chat";
+import Tourism from "./pages/Tourism";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,9 @@ const App = () => (
             <Route path="/thinkspace/write" element={<ProtectedRoute><BlogWriter /></ProtectedRoute>} />
             <Route path="/workshop" element={<ProtectedRoute><Workshop /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/tourism" element={<ProtectedRoute><Tourism /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

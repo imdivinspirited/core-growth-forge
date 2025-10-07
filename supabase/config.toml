@@ -1,1 +1,7 @@
 project_id = "giasxieqdyyqvsmtibfr"
+
+[functions.ai-recommendations]
+verify_jwt = true
+
+[functions.send-notification]
+verify_jwt = false
