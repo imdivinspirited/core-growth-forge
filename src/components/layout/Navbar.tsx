@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Settings, LogOut } from "lucide-react";
+import { Menu, X, User, Settings, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
-import { ModeToggle } from "@/components/mode-toggle";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,9 +49,8 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-2 gap-2">
+          <div className="hidden md:flex items-center space-x-4 gap-2">
             <GlobalSearch />
-            <ModeToggle />
             {user ? (
               <>
                 <Button variant="ghost" size="sm" asChild>
