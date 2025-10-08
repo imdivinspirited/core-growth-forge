@@ -31,7 +31,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <GlobalSearch />
             <FloatingChatButton />
             <Routes>
               <Route path="/" element={<Index />} />

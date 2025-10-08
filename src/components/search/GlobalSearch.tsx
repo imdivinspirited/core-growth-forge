@@ -131,7 +131,7 @@ export const GlobalSearch = () => {
     return (
       <Button
         variant="outline"
-        className="w-full max-w-sm flex items-center justify-between"
+        className="w-64 flex items-center justify-between hover:bg-accent/10"
         onClick={() => setIsOpen(true)}
       >
         <div className="flex items-center gap-2">
