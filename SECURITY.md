@@ -111,6 +111,18 @@ CREATE TABLE audit_logs (
 
 ## Security Vulnerabilities Fixed
 
+### ✅ Critical: User Contact Information Harvesting (RESOLVED)
+**Issue**: Email and phone numbers in profiles table could be harvested by spammers when users set privacy to 'public'
+**Fix**: Removed email and phone columns from profiles table; data now only accessible through auth.users
+**Status**: Fixed in migration - email/phone now stored securely in auth system only
+**Impact**: Prevents spam harvesting while maintaining user privacy controls
+
+### ✅ High: Vendor Contact Details Exposure (RESOLVED)  
+**Issue**: Vendor email, phone, address publicly readable by competitors and scrapers
+**Fix**: Updated RLS policies to protect vendor contact information
+**Status**: Application code filters sensitive fields from public queries
+**Impact**: Protects business contact data from unauthorized access
+
 ### ✅ Critical: PII Exposure (RESOLVED)
 **Issue**: Profiles table was publicly readable with email/phone
 **Fix**: Implemented privacy-respecting RLS policies
@@ -277,4 +289,4 @@ This document will be updated as:
 - Best practices evolve
 - Framework updates require changes
 
-Last Updated: 2025-10-06
+Last Updated: 2025-10-10

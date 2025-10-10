@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,30 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Camera, Save, Mail } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { User, Camera, Save } from "lucide-react";
 
 export const AccountInfo = () => {
-  const [userEmail, setUserEmail] = useState("");
-  const { toast } = useToast();
-
   const [formData, setFormData] = useState({
     fullName: "John Smith",
     username: "johnsmith",
     bio: "Full Stack Developer passionate about creating innovative solutions. Always learning and exploring new technologies.",
     location: "San Francisco, CA"
   });
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email || "");
-      }
-    };
-    fetchUserData();
-  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -98,23 +83,6 @@ export const AccountInfo = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={userEmail}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground">
-              Email is managed through your account settings and cannot be changed here.
-            </p>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
             <Input
               id="location"
@@ -152,6 +120,13 @@ export const AccountInfo = () => {
             <div className="text-lg font-bold text-foreground">45</div>
             <div className="text-xs text-muted-foreground">Days Active</div>
           </div>
+        </div>
+
+        {/* Note about email/phone */}
+        <div className="bg-muted/50 border border-border rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">
+            <strong>Note:</strong> Email and phone number are managed through your authentication settings for security and privacy.
+          </p>
         </div>
 
         {/* Save Button */}
