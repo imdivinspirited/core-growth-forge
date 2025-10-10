@@ -720,11 +720,9 @@ export type Database = {
           bio: string | null
           cover_photo_url: string | null
           created_at: string
-          email: string | null
           full_name: string | null
           id: string
           language_preference: string | null
-          phone: string | null
           privacy_profile: string | null
           theme_preference: string | null
           updated_at: string
@@ -736,11 +734,9 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
-          email?: string | null
           full_name?: string | null
           id?: string
           language_preference?: string | null
-          phone?: string | null
           privacy_profile?: string | null
           theme_preference?: string | null
           updated_at?: string
@@ -752,11 +748,9 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
-          email?: string | null
           full_name?: string | null
           id?: string
           language_preference?: string | null
-          phone?: string | null
           privacy_profile?: string | null
           theme_preference?: string | null
           updated_at?: string
@@ -1059,6 +1053,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_vendor_info: {
+        Args: { vendor_row: Database["public"]["Tables"]["vendors"]["Row"] }
+        Returns: {
+          business_name: string
+          business_type: string
+          city: string
+          country: string
+          created_at: string
+          description: string
+          id: string
+          rating: number
+          total_bookings: number
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -1,11 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 const ContactInfo = ({ profile, onUpdate }) => {
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch email from auth.users (secure source)
+    const fetchUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || null);
+      }
+    };
+    fetchUserEmail();
+  }, []);
+
   const contactDetails = {
-    email: profile?.email || "john.developer@email.com",
-    phone: profile?.phone || "+1 (555) 123-4567",
+    email: userEmail || "Not provided",
+    phone: "Available on request", // Phone removed from public profiles for privacy
     location: "San Francisco, CA",
     socialLinks: [
       { platform: "LinkedIn", url: "https://linkedin.com/in/johndeveloper", icon: Linkedin },

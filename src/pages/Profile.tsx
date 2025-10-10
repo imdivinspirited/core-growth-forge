@@ -35,8 +35,6 @@ const Profile = () => {
     full_name: '',
     username: '',
     bio: '',
-    email: '',
-    phone: '',
     language_preference: 'en',
     theme_preference: 'light',
     privacy_profile: 'public'
@@ -70,11 +68,10 @@ const Profile = () => {
         setProfile(data);
         setEditForm(data);
       } else {
-        // Create default profile
+        // Create default profile (email and phone stored in auth.users for security)
         const defaultProfile = {
           user_id: user.id,
           full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          email: user.email,
           username: user.email?.split('@')[0],
           bio: 'Welcome to my profile!',
           language_preference: 'en',

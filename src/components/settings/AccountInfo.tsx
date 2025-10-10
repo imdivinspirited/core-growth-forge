@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,17 +6,30 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Camera, Save, Mail, Phone } from "lucide-react";
+import { User, Camera, Save, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const AccountInfo = () => {
+  const [userEmail, setUserEmail] = useState("");
+  const { toast } = useToast();
+
   const [formData, setFormData] = useState({
     fullName: "John Smith",
     username: "johnsmith",
-    email: "john.smith@email.com",
-    phone: "+1 (555) 123-4567",
     bio: "Full Stack Developer passionate about creating innovative solutions. Always learning and exploring new technologies.",
     location: "San Francisco, CA"
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || "");
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -84,30 +97,21 @@ export const AccountInfo = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Phone Number
-              </Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={userEmail}
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-xs text-muted-foreground">
+              Email is managed through your account settings and cannot be changed here.
+            </p>
           </div>
 
           <div className="space-y-2">
