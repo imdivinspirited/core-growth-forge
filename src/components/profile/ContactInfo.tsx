@@ -1,26 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MapPin, Linkedin, Github, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
 
 const ContactInfo = ({ profile, onUpdate }) => {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
 
   useEffect(() => {
-    // Fetch email from auth.users (secure source)
-    const fetchUserEmail = async () => {
+    // Fetch user email from auth.users (not from profiles table for security)
+    const getUserEmail = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email || null);
+      if (user?.email) {
+        setUserEmail(user.email);
       }
     };
-    fetchUserEmail();
+    getUserEmail();
   }, []);
 
   const contactDetails = {
-    email: userEmail || "Not provided",
-    phone: "Available on request", // Phone removed from public profiles for privacy
+    email: userEmail || "your.email@example.com",
     location: "San Francisco, CA",
     socialLinks: [
       { platform: "LinkedIn", url: "https://linkedin.com/in/johndeveloper", icon: Linkedin },
@@ -39,6 +38,10 @@ const ContactInfo = ({ profile, onUpdate }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
+          <div className="flex items-center gap-3 text-sm">
+            <Mail className="w-4 h-4 text-muted-foreground" />
+            <span>{contactDetails.email}</span>
+          </div>
           <div className="flex items-center gap-3 text-sm">
             <MapPin className="w-4 h-4 text-muted-foreground" />
             <span>{contactDetails.location}</span>
