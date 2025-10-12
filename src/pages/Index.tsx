@@ -19,7 +19,7 @@ const Index = () => {
         <div className="min-h-screen w-full flex bg-background">
           <AppSidebar />
           
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-col">
             {/* Minimal Header with Sidebar Toggle */}
             <header className="h-12 flex items-center border-b border-border/50 bg-background/95 backdrop-blur-md sticky top-0 z-40 px-4">
               <SidebarTrigger className="mr-4" />
