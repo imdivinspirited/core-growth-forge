@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Settings, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,7 +8,16 @@ import { GlobalSearch } from "@/components/search/GlobalSearch";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -24,52 +34,83 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
+    <motion.nav 
+      className={`bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${
+        scrolled ? "shadow-lg" : ""
+      }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <motion.div 
+            className="flex items-center space-x-2"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
+          >
             <div className="bg-hero-gradient p-2 rounded-lg">
               <User className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold text-foreground">BrandSpace</span>
-          </div>
+          </motion.div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
+            {navItems.map((item, index) => (
+              <motion.div
                 key={item.label}
-                to={item.href}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                {item.label}
-              </Link>
+                <Link
+                  to={item.href}
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 relative group"
+                >
+                  {item.label}
+                  <motion.span
+                    className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"
+                  />
+                </Link>
+              </motion.div>
             ))}
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4 gap-2">
+          <motion.div 
+            className="hidden md:flex items-center space-x-4 gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             <GlobalSearch />
             {user ? (
               <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/settings">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/settings">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </Link>
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </motion.div>
               </>
             ) : (
-              <Button variant="default" size="sm" asChild>
-                <Link to="/auth">Sign In</Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="default" size="sm" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
@@ -84,44 +125,78 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-border mt-4 pt-4">
-            <div className="flex flex-col space-y-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  className="text-muted-foreground hover:text-primary transition-colors duration-200 py-2"
-                  onClick={() => setIsMenuOpen(false)}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              className="md:hidden pb-4 border-t border-border mt-4 pt-4"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="flex flex-col space-y-3"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.05,
+                    },
+                  },
+                }}
+              >
+                {navItems.map((item) => (
+                  <motion.div
+                    key={item.label}
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    <Link
+                      to={item.href}
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 py-2 block"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
+                <motion.div 
+                  className="pt-4 space-y-2"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1 },
+                  }}
                 >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="pt-4 space-y-2">
-                {user ? (
-                  <>
-                    <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
-                      <Link to="/settings">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                      </Link>
+                  {user ? (
+                    <>
+                      <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                        <Link to="/settings">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Settings
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="default" size="sm" className="w-full" asChild>
+                      <Link to="/auth">Sign In</Link>
                     </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="default" size="sm" className="w-full" asChild>
-                    <Link to="/auth">Sign In</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+                  )}
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
 

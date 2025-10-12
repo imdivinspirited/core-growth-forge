@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Briefcase, User, ArrowRight, Sparkles } from "lucide-react";
+import { staggerContainerVariants, staggerItemVariants, fadeUpVariants, scaleInVariants } from "@/lib/animations";
 
 const HeroBanner = () => {
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -42,75 +44,137 @@ const HeroBanner = () => {
       
       <div className="container mx-auto px-4 py-20 lg:py-32 relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Welcome to Your Personal Brand
-            </Badge>
+          <motion.div 
+            className="text-center mb-12"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainerVariants}
+          >
+            <motion.div variants={staggerItemVariants}>
+              <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Welcome to Your Personal Brand
+              </Badge>
+            </motion.div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <motion.h1 
+              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+              variants={staggerItemVariants}
+            >
               Build Your
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">
                 Professional Legacy
               </span>
-            </h1>
+            </motion.h1>
             
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
+            <motion.p 
+              className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto"
+              variants={staggerItemVariants}
+            >
               Create, showcase, and grow your personal brand with our comprehensive platform designed for ambitious individuals.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Role Selection */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-semibold text-center mb-8">Choose Your Path</h2>
-            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {roles.map((role) => {
+          <motion.div 
+            className="mb-12"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUpVariants}
+          >
+            <motion.h2 
+              className="text-2xl font-semibold text-center mb-8"
+              variants={scaleInVariants}
+            >
+              Choose Your Path
+            </motion.h2>
+            <motion.div 
+              className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+              variants={staggerContainerVariants}
+            >
+              {roles.map((role, index) => {
                 const IconComponent = role.icon;
                 const isSelected = selectedRole === role.id;
                 
                 return (
-                  <Card 
+                  <motion.div
                     key={role.id}
-                    className={`p-6 cursor-pointer transition-all duration-300 hover:scale-105 bg-white/10 backdrop-blur-sm border-white/20 ${
-                      isSelected ? 'ring-2 ring-white bg-white/20' : 'hover:bg-white/20'
-                    }`}
-                    onClick={() => setSelectedRole(role.id)}
+                    variants={staggerItemVariants}
+                    whileHover={{ scale: 1.05, y: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <div className="text-center text-white">
-                      <div className={`w-16 h-16 ${role.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                        <IconComponent className="w-8 h-8 text-white" />
+                    <Card 
+                      className={`p-6 cursor-pointer transition-all duration-300 bg-white/10 backdrop-blur-sm border-white/20 ${
+                        isSelected ? 'ring-2 ring-white bg-white/20' : 'hover:bg-white/20'
+                      }`}
+                      onClick={() => setSelectedRole(role.id)}
+                    >
+                      <div className="text-center text-white">
+                        <motion.div 
+                          className={`w-16 h-16 ${role.color} rounded-full flex items-center justify-center mx-auto mb-4`}
+                          whileHover={{ rotate: 360 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <IconComponent className="w-8 h-8 text-white" />
+                        </motion.div>
+                        <h3 className="text-xl font-semibold mb-2">{role.title}</h3>
+                        <p className="text-white/80 text-sm">{role.description}</p>
                       </div>
-                      <h3 className="text-xl font-semibold mb-2">{role.title}</h3>
-                      <p className="text-white/80 text-sm">{role.description}</p>
-                    </div>
-                  </Card>
+                    </Card>
+                  </motion.div>
                 );
               })}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* CTA Buttons */}
-          <div className="text-center">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-3"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="border-white/50 text-white hover:bg-white/10 text-lg px-8 py-3"
-              >
-                Watch Demo
-              </Button>
-            </div>
-            <p className="text-white/70 text-sm mt-4">
+          <motion.div 
+            className="text-center"
+            initial="hidden"
+            animate="visible"
+            variants={fadeUpVariants}
+          >
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              variants={staggerContainerVariants}
+            >
+              <motion.div variants={staggerItemVariants}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    size="lg" 
+                    className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-3"
+                  >
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </motion.div>
+              </motion.div>
+              <motion.div variants={staggerItemVariants}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="border-white/50 text-white hover:bg-white/10 text-lg px-8 py-3"
+                  >
+                    Watch Demo
+                  </Button>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+            <motion.p 
+              className="text-white/70 text-sm mt-4"
+              variants={staggerItemVariants}
+            >
               No credit card required • Free 14-day trial
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
         </div>
       </div>
     </section>
