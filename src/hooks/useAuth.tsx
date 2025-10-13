@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -57,23 +57,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        toast({
-          title: "Sign up failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        // Handle specific error cases
+        if (error.message.includes("already registered")) {
+          toast({
+            title: "Email already exists",
+            description: "This email is already registered. Please sign in or use a different email.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       } else {
-        toast({
-          title: "Success!",
-          description: "Please check your email to confirm your account.",
-        });
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+          toast({
+            title: "Check your email!",
+            description: "We've sent you a confirmation link. Please verify your email before signing in.",
+            duration: 7000,
+          });
+        } else if (data.session) {
+          toast({
+            title: "Welcome!",
+            description: "Your account has been created successfully.",
+          });
+        }
       }
 
       return { error };
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -88,11 +106,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
-        toast({
-          title: "Sign in failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        // Handle specific error cases
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            title: "Sign in failed",
+            description: "Invalid email or password. If you just signed up, please verify your email first.",
+            variant: "destructive",
+            duration: 7000,
+          });
+        } else if (error.message.includes("Email not confirmed")) {
+          toast({
+            title: "Email not verified",
+            description: "Please check your email and click the confirmation link before signing in.",
+            variant: "destructive",
+            duration: 7000,
+          });
+        } else {
+          toast({
+            title: "Sign in failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Welcome back!",
@@ -104,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };

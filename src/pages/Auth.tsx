@@ -1,21 +1,27 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { signUpSchema, signInSchema } from "@/lib/validations/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -51,6 +57,7 @@ export default function Auth() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setShowResendConfirmation(false);
     
     const validation = signInSchema.safeParse(signInData);
     if (!validation.success) {
@@ -68,8 +75,42 @@ export default function Auth() {
     const { error } = await signIn(signInData.email, signInData.password);
     setIsLoading(false);
 
-    if (!error) {
+    if (error) {
+      // If login failed, offer to resend confirmation email
+      if (error.message?.includes("Invalid login credentials")) {
+        setShowResendConfirmation(true);
+        setResendEmail(signInData.email);
+      }
+    } else {
       navigate("/");
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!resendEmail) return;
+
+    setIsLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: resendEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Email sent!",
+        description: "Please check your inbox for the confirmation link.",
+      });
+      setShowResendConfirmation(false);
     }
   };
 
@@ -91,6 +132,23 @@ export default function Auth() {
             
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
+                {showResendConfirmation && (
+                  <Alert>
+                    <Mail className="h-4 w-4" />
+                    <AlertDescription>
+                      Haven't received the confirmation email?{" "}
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="p-0 h-auto"
+                        onClick={handleResendConfirmation}
+                        disabled={isLoading}
+                      >
+                        Click here to resend
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <Input
@@ -168,6 +226,11 @@ export default function Auth() {
           </Tabs>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
+          <Alert className="bg-muted/50">
+            <AlertDescription className="text-xs text-center">
+              <strong>Note:</strong> Email verification is required. After signing up, check your inbox and verify your email before signing in.
+            </AlertDescription>
+          </Alert>
           <p className="text-xs text-center text-muted-foreground">
             By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
