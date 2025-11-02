@@ -8,13 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { signUpSchema, signInSchema } from "@/lib/validations/auth";
 import { Loader2, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type UserRole = 'student' | 'professional' | 'user';
+
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
-  const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
+  const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "", role: "user" as UserRole });
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showResendConfirmation, setShowResendConfirmation] = useState(false);
@@ -46,11 +49,21 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+    const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName, signUpData.role);
     setIsLoading(false);
 
     if (!error) {
-      setSignUpData({ email: "", password: "", fullName: "" });
+      toast({
+        title: "Success!",
+        description: "Please check your email to verify your account.",
+      });
+      setSignUpData({ email: "", password: "", fullName: "", role: "user" });
+    } else {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -191,6 +204,22 @@ export default function Auth() {
                     required
                   />
                   {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-role">I am a</Label>
+                  <Select
+                    value={signUpData.role}
+                    onValueChange={(value: UserRole) => setSignUpData({ ...signUpData, role: value })}
+                  >
+                    <SelectTrigger id="signup-role">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="user">General User</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>

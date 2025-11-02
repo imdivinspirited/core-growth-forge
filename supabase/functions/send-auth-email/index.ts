@@ -62,11 +62,17 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Send email via Resend
+    // Send email via Resend  
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'ovaboe.dev <onboarding@resend.dev>',
+      from: 'ovaboe.dev <noreply@ovaboe.dev>',
       to: [user.email],
-      subject: 'Welcome to ovaboe.dev - Verify Your Email',
+      subject: email_action_type === 'signup' 
+        ? '🎉 Welcome to ovaboe.dev - Verify Your Email'
+        : email_action_type === 'recovery'
+        ? '🔐 Reset Your Password - ovaboe.dev'
+        : email_action_type === 'email_change'
+        ? '📧 Confirm Your Email Change - ovaboe.dev'
+        : '✉️ Verify Your Email - ovaboe.dev',
       html,
     });
 

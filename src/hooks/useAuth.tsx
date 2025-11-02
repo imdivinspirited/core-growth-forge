@@ -7,10 +7,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, role?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  hasRole: (role: 'admin' | 'moderator' | 'user') => Promise<boolean>;
+  hasRole: (role: 'admin' | 'moderator' | 'user' | 'student' | 'professional') => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: string = 'user') => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
+            role: role,
           },
         },
       });
@@ -72,6 +73,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           });
         }
       } else {
+        // Add user role
+        if (data.user) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert([
+              {
+                user_id: data.user.id,
+                role: role as any,
+              },
+            ]);
+
+          if (roleError) console.error('Error assigning role:', roleError);
+        }
+
         // Check if email confirmation is required
         if (data.user && !data.session) {
           toast({
