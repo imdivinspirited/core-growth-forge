@@ -63,16 +63,17 @@ Deno.serve(async (req) => {
     );
 
     // Send email via Resend  
+    const fromAddress = Deno.env.get('RESEND_FROM') || 'Lovable App <onboarding@resend.dev>';
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'ovaboe.dev <noreply@ovaboe.dev>',
+      from: fromAddress,
       to: [user.email],
       subject: email_action_type === 'signup' 
-        ? '🎉 Welcome to ovaboe.dev - Verify Your Email'
+        ? '🎉 Welcome — Verify Your Email'
         : email_action_type === 'recovery'
-        ? '🔐 Reset Your Password - ovaboe.dev'
+        ? '🔐 Reset Your Password'
         : email_action_type === 'email_change'
-        ? '📧 Confirm Your Email Change - ovaboe.dev'
-        : '✉️ Verify Your Email - ovaboe.dev',
+        ? '📧 Confirm Your Email Change'
+        : '✉️ Verify Your Email',
       html,
     });
 
