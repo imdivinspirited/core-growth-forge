@@ -1,4 +1,12 @@
 import { Variants } from "framer-motion";
+import { useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Page transition variants
 export const pageVariants: Variants = {
@@ -186,4 +194,164 @@ export const rotateInVariants: Variants = {
       ease: "easeOut",
     },
   },
+};
+
+// ==================== GSAP Utilities ====================
+
+/**
+ * Fade in animation with GSAP
+ */
+export const gsapFadeIn = (
+  element: HTMLElement | string,
+  options?: {
+    duration?: number;
+    delay?: number;
+    y?: number;
+    x?: number;
+    stagger?: number;
+  }
+) => {
+  return gsap.from(element, {
+    opacity: 0,
+    y: options?.y ?? 30,
+    x: options?.x ?? 0,
+    duration: options?.duration ?? 0.8,
+    delay: options?.delay ?? 0,
+    stagger: options?.stagger ?? 0,
+    ease: 'power3.out',
+  });
+};
+
+/**
+ * Scale in animation
+ */
+export const gsapScaleIn = (
+  element: HTMLElement | string,
+  options?: {
+    duration?: number;
+    delay?: number;
+    scale?: number;
+  }
+) => {
+  return gsap.from(element, {
+    scale: options?.scale ?? 0.8,
+    opacity: 0,
+    duration: options?.duration ?? 0.6,
+    delay: options?.delay ?? 0,
+    ease: 'back.out(1.4)',
+  });
+};
+
+/**
+ * Parallax effect with scroll trigger
+ */
+export const gsapParallax = (
+  element: HTMLElement | string,
+  options?: {
+    yPercent?: number;
+    speed?: number;
+  }
+) => {
+  return gsap.to(element, {
+    yPercent: options?.yPercent ?? -50,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: element,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: options?.speed ?? 1,
+    },
+  });
+};
+
+/**
+ * Reveal animation with scroll trigger
+ */
+export const gsapScrollReveal = (
+  element: HTMLElement | string,
+  options?: {
+    duration?: number;
+    y?: number;
+    delay?: number;
+    start?: string;
+    end?: string;
+  }
+) => {
+  return gsap.from(element, {
+    opacity: 0,
+    y: options?.y ?? 50,
+    duration: options?.duration ?? 1,
+    delay: options?.delay ?? 0,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: element,
+      start: options?.start ?? 'top 80%',
+      end: options?.end ?? 'top 20%',
+      toggleActions: 'play none none reverse',
+    },
+  });
+};
+
+/**
+ * Stagger animation for lists
+ */
+export const gsapStaggerFadeIn = (
+  elements: HTMLElement[] | string,
+  options?: {
+    duration?: number;
+    stagger?: number;
+    y?: number;
+  }
+) => {
+  return gsap.from(elements, {
+    opacity: 0,
+    y: options?.y ?? 30,
+    duration: options?.duration ?? 0.6,
+    stagger: options?.stagger ?? 0.1,
+    ease: 'power2.out',
+  });
+};
+
+/**
+ * Floating animation for elements
+ */
+export const gsapFloat = (
+  element: HTMLElement | string,
+  options?: {
+    duration?: number;
+    y?: number;
+  }
+) => {
+  return gsap.to(element, {
+    y: options?.y ?? -10,
+    duration: options?.duration ?? 2,
+    ease: 'power1.inOut',
+    yoyo: true,
+    repeat: -1,
+  });
+};
+
+/**
+ * Hook to initialize GSAP animations
+ */
+export const useGSAP = (
+  callback: () => void | (() => void),
+  dependencies: any[] = []
+) => {
+  useEffect(() => {
+    const cleanup = callback();
+    return () => {
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, dependencies);
+};
+
+/**
+ * Refresh all scroll triggers (useful after content loads)
+ */
+export const refreshScrollTriggers = () => {
+  ScrollTrigger.refresh();
 };

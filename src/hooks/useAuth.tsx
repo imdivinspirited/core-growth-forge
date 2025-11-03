@@ -43,6 +43,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, role: string = 'user') => {
     try {
+      // Validate inputs
+      if (!email || !password || !fullName) {
+        const error = new Error("All fields are required");
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return { error };
+      }
+
+      if (password.length < 8) {
+        const error = new Error("Password must be at least 8 characters");
+        toast({
+          title: "Weak Password",
+          description: "Password must be at least 8 characters long",
+          variant: "destructive",
+        });
+        return { error };
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -65,6 +86,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             description: "This email is already registered. Please sign in or use a different email.",
             variant: "destructive",
           });
+        } else if (error.message.includes("Password")) {
+          toast({
+            title: "Invalid Password",
+            description: error.message,
+            variant: "destructive",
+          });
         } else {
           toast({
             title: "Sign up failed",
@@ -72,38 +99,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             variant: "destructive",
           });
         }
-      } else {
-        // Add user role
-        if (data.user) {
+        return { error };
+      }
+
+      // Add user role - only if user was created
+      if (data.user) {
+        try {
           const { error: roleError } = await supabase
             .from('user_roles')
-            .insert([
-              {
-                user_id: data.user.id,
-                role: role as any,
-              },
-            ]);
+            .insert({
+              user_id: data.user.id,
+              role: role as any,
+            });
 
-          if (roleError) console.error('Error assigning role:', roleError);
-        }
-
-        // Check if email confirmation is required
-        if (data.user && !data.session) {
-          toast({
-            title: "Check your email!",
-            description: "We've sent you a confirmation link. Please verify your email before signing in.",
-            duration: 7000,
-          });
-        } else if (data.session) {
-          toast({
-            title: "Welcome!",
-            description: "Your account has been created successfully.",
-          });
+          if (roleError) {
+            console.error('Error assigning role:', roleError);
+            // Don't fail signup if role assignment fails
+          }
+        } catch (roleErr) {
+          console.error('Role assignment exception:', roleErr);
         }
       }
 
-      return { error };
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        toast({
+          title: "Check your email! 📧",
+          description: "We've sent you a confirmation link. Please verify your email before signing in.",
+          duration: 7000,
+        });
+      } else if (data.session) {
+        toast({
+          title: "Welcome! 🎉",
+          description: "Your account has been created successfully.",
+        });
+      }
+
+      return { error: null };
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: "Error",
         description: error.message || "An unexpected error occurred",
@@ -115,6 +149,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Validate inputs
+      if (!email || !password) {
+        const error = new Error("Email and password are required");
+        toast({
+          title: "Validation Error",
+          description: "Please enter both email and password",
+          variant: "destructive",
+        });
+        return { error };
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -143,15 +188,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             variant: "destructive",
           });
         }
-      } else {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
+        return { error };
       }
 
-      return { error };
+      toast({
+        title: "Welcome back! 👋",
+        description: "You have successfully signed in.",
+      });
+
+      return { error: null };
     } catch (error: any) {
+      console.error('Signin error:', error);
       toast({
         title: "Error",
         description: error.message || "An unexpected error occurred",

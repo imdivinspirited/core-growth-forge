@@ -1,4 +1,41 @@
-# Deployment Guide for ovaboe.dev
+# Production Deployment Guide
+
+Complete guide to deploying your full-stack web application to production.
+
+## 🎯 Pre-Deployment Checklist
+
+### Environment Setup
+- [ ] All environment variables configured in `.env`
+- [ ] Supabase project fully configured
+- [ ] Resend API key added to Supabase secrets
+- [ ] Domain verified in Resend dashboard
+- [ ] Auth webhook configured in Supabase
+- [ ] Database migrations applied
+- [ ] RLS policies tested and working
+
+### Code Quality
+- [ ] No console errors or warnings
+- [ ] All TypeScript errors resolved
+- [ ] ESLint passes with no errors
+- [ ] Prettier formatting applied
+- [ ] Unused imports removed
+- [ ] Build command succeeds locally
+
+### Testing
+- [ ] Authentication flow tested (sign up, sign in, sign out)
+- [ ] Email delivery verified
+- [ ] Dark mode working correctly
+- [ ] Global search functioning
+- [ ] Animations smooth and performant
+- [ ] Mobile responsiveness confirmed
+- [ ] All protected routes working
+
+### Performance
+- [ ] Images optimized
+- [ ] Bundle size analyzed
+- [ ] Lighthouse score > 90
+- [ ] No layout shifts
+- [ ] Smooth scrolling verified
 
 ## 📋 Prerequisites
 
@@ -6,7 +43,7 @@ Before deploying, ensure you have:
 
 1. ✅ A Supabase project set up
 2. ✅ Resend API key configured
-3. ✅ All tests passing (see TESTING-CHECKLIST.md)
+3. ✅ All tests passing (see TESTING.md)
 4. ✅ No console errors or warnings
 5. ✅ Environment variables ready
 

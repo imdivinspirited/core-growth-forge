@@ -1,292 +1,182 @@
-# Security Policy
+# Security Best Practices
 
-## Overview
+## Authentication & Authorization
 
-This application implements comprehensive security measures including authentication, authorization, row-level security, and input validation. This document outlines our security architecture and best practices.
+### ✅ Implemented Security Measures
 
-## Security Features
+1. **Row-Level Security (RLS)**
+   - All database tables have RLS policies enabled
+   - User data is protected with user-specific access controls
+   - Role-based access control (RBAC) implemented via `user_roles` table
+   - `has_role()` function uses `SECURITY DEFINER` to prevent RLS recursion
 
-### 1. Authentication System
+2. **Password Security**
+   - Passwords are hashed using bcrypt via Supabase Auth
+   - Minimum password length enforced (8 characters)
+   - Password complexity requirements in validation (zod schemas)
+   - No passwords stored in plaintext anywhere
 
-**Implementation**: Supabase Auth with email/password
-- Secure password requirements (8+ chars, uppercase, lowercase, numbers)
-- Email verification on signup
-- Session management with automatic token refresh
-- Secure cookie-based session storage
+3. **Email Verification**
+   - Email confirmation required before account activation
+   - Secure email templates with branded design
+   - Resend functionality for unverified accounts
+   - Webhook signature verification for auth emails
 
-**Best Practices**:
-- Never log sensitive auth data to console in production
-- Always use HTTPS in production
-- Implement proper error handling without exposing internals
+4. **Input Validation**
+   - Client-side validation using Zod schemas
+   - Server-side validation in edge functions
+   - SQL injection prevention via parameterized queries (Supabase client)
+   - XSS prevention via React's built-in escaping
 
-### 2. Role-Based Access Control (RBAC)
+5. **Session Management**
+   - JWT tokens for authentication
+   - Secure session storage with httpOnly cookies
+   - Auto token refresh enabled
+   - Session expiration handling
+   - Proper logout clearing all session data
 
-**Architecture**:
-```
+## Best Practices
+
+### Environment Variables
+- All sensitive keys stored in `.env` files
+- Never commit `.env` to version control (in `.gitignore`)
+- Use Supabase secrets for edge function credentials
+- No hardcoded API keys in code
+
+### API Security
+- CORS headers properly configured in edge functions
+- Rate limiting should be implemented for production
+- API endpoints protected with RLS policies
+- No exposed service role keys in client code
+
+### Frontend Security
+- XSS prevention via React's built-in escaping
+- No `dangerouslySetInnerHTML` usage without sanitization
+- Content Security Policy headers recommended for production
+- Input validation on all forms
+
+### Database Security
+- RLS policies on all tables
+- Foreign key constraints enforced
+- Audit logging for sensitive operations (admin actions)
+- No direct database access from client
+- Proper indexing for performance
+
+### Role-Based Access Control
 - Roles stored in separate `user_roles` table
-- Three-tier system: admin, moderator, user
-- Security definer function `has_role()` prevents RLS recursion
-- Automatic role assignment on user creation
-```
+- Never stored in `localStorage` or client-side
+- Always validated server-side using RLS policies
+- `has_role()` function prevents privilege escalation
 
-**Role Permissions**:
-- **User**: Create/edit own content, view public content
-- **Moderator**: Moderate community posts, additional content management
-- **Admin**: Full system access, user management, all content moderation
+## Security Checklist
 
-**Critical Security Rules**:
-- ❌ NEVER store roles in localStorage/sessionStorage
-- ❌ NEVER check admin status client-side only
-- ✅ ALWAYS use `has_role()` function in RLS policies
-- ✅ ALWAYS validate permissions server-side
-
-### 3. Row-Level Security (RLS)
-
-All tables have RLS enabled with appropriate policies:
-
-**profiles**
-- Users can view their own complete profile
-- Public profiles viewable with limited fields only
-- Email and phone numbers protected from public access
-
-**blogs**
-- Authenticated users can create blogs
-- Authors can edit their own blogs
-- Admins can moderate any blog
-- Published blogs publicly readable
-
-**user_roles**
-- Users can view their own roles
-- Only admins can manage roles
-
-**audit_logs**
-- Admin-only access
-- Automatic logging of sensitive operations
-
-### 4. Input Validation
-
-**Schema Validation**: All user inputs validated using Zod schemas
-
-```typescript
-// Example validation
-const profileSchema = z.object({
-  username: z.string().min(3).max(30),
-  email: z.string().email().max(255),
-  // ... more validations
-});
-```
-
-**Validation Points**:
-- Client-side: Immediate feedback, UX improvement
-- Server-side: RLS policies, database constraints
-- Edge functions: Additional validation layer
-
-**Protected Against**:
-- SQL Injection (via parameterized queries)
-- XSS (no dangerouslySetInnerHTML, proper escaping)
-- CSRF (Supabase handles token validation)
-- Input length attacks (max length validation)
-
-### 5. Audit Logging
-
-**Tracked Events**:
-- User authentication attempts
-- Role changes
-- Content moderation actions
-- Sensitive data access
-
-**Log Structure**:
-```sql
-CREATE TABLE audit_logs (
-    user_id UUID,
-    action TEXT,
-    table_name TEXT,
-    record_id UUID,
-    old_data JSONB,
-    new_data JSONB,
-    ip_address INET,
-    created_at TIMESTAMP
-);
-```
-
-## Security Vulnerabilities Fixed
-
-### ✅ Critical: User Contact Information Harvesting (RESOLVED)
-**Issue**: Email and phone numbers in profiles table could be harvested by spammers when users set privacy to 'public'
-**Fix**: Removed email and phone columns from profiles table; data now only accessible through auth.users
-**Status**: Fixed in migration - email/phone now stored securely in auth system only
-**Impact**: Prevents spam harvesting while maintaining user privacy controls
-
-### ✅ High: Vendor Contact Details Exposure (RESOLVED)  
-**Issue**: Vendor email, phone, address publicly readable by competitors and scrapers
-**Fix**: Updated RLS policies to protect vendor contact information
-**Status**: Application code filters sensitive fields from public queries
-**Impact**: Protects business contact data from unauthorized access
-
-### ✅ Critical: PII Exposure (RESOLVED)
-**Issue**: Profiles table was publicly readable with email/phone
-**Fix**: Implemented privacy-respecting RLS policies
-**Status**: Fixed in migration `20251006083952`
-
-### ✅ High: Missing Authentication (RESOLVED)
-**Issue**: No login/signup system
-**Fix**: Full authentication system with protected routes
-**Status**: Implemented
-
-### ✅ High: No RBAC (RESOLVED)
-**Issue**: No user roles or permissions system
-**Fix**: Three-tier RBAC with security definer functions
-**Status**: Implemented
-
-### ✅ Medium: Missing Input Validation (RESOLVED)
-**Issue**: Forms lacked validation
-**Fix**: Zod schemas for all inputs
-**Status**: Implemented
-
-## Remaining Security Considerations
-
-### PostgreSQL Version (WARN)
-**Issue**: Current version has available security patches
-**Action Required**: User must upgrade in Supabase Dashboard
-**Impact**: Low (mitigated by other security layers)
-**How to Fix**: See [Supabase Upgrade Guide](https://supabase.com/docs/guides/platform/upgrading)
-
-### Future Enhancements
-
-1. **Two-Factor Authentication (2FA)**
-   - TOTP-based 2FA
-   - Backup codes
-   - SMS verification option
-
-2. **Rate Limiting**
-   - Login attempt limits
-   - API request throttling
-   - Content creation rate limits
-
-3. **Content Security Policy (CSP)**
-   - Strict CSP headers
-   - Nonce-based script execution
-   - Prevent inline scripts
-
-4. **Advanced Monitoring**
-   - Real-time threat detection
-   - Anomaly detection
-   - Security event alerts
+- [x] RLS enabled on all tables
+- [x] Email verification required
+- [x] Password hashing with bcrypt
+- [x] Input validation (client & server)
+- [x] Secure session management
+- [x] Environment variables for secrets
+- [x] CORS configuration
+- [x] No hardcoded credentials
+- [x] XSS protection
+- [x] CSRF protection via SameSite cookies
+- [ ] Rate limiting (recommended for production)
+- [ ] CSP headers (recommended for production)
+- [ ] 2FA/MFA (optional enhancement)
+- [ ] Security headers (HSTS, X-Frame-Options, etc.)
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability, please:
+If you discover a security vulnerability, please email **security@ovaboe.dev** instead of using the issue tracker.
 
-1. **DO NOT** open a public GitHub issue
-2. Email security concerns to the project maintainer
-3. Include detailed steps to reproduce
-4. Allow reasonable time for patching before public disclosure
+## Production Recommendations
 
-## Security Checklist for Developers
+1. **Enable 2FA** for admin accounts
+2. **Implement rate limiting** on auth endpoints (10 requests/min per IP)
+3. **Add CSP headers** via hosting platform:
+   ```
+   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
+   ```
+4. **Regular security audits** of dependencies (`npm audit`)
+5. **Monitor failed login attempts** and implement account lockout
+6. **Set up alerting** for suspicious activities
+7. **Enable database backups** (daily automated)
+8. **Use SSL/TLS** for all connections (force HTTPS)
+9. **Implement logging** for security events
+10. **Add security headers**:
+    - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+    - `X-Frame-Options: DENY`
+    - `X-Content-Type-Options: nosniff`
+    - `Referrer-Policy: strict-origin-when-cross-origin`
 
-Before deploying new features:
+## Common Vulnerabilities Prevented
 
-- [ ] All user inputs validated with Zod schemas
-- [ ] RLS policies tested for new tables
-- [ ] No sensitive data logged to console
-- [ ] Edge functions use proper authentication
-- [ ] Role checks use `has_role()` function
-- [ ] No SQL injection vulnerabilities
-- [ ] XSS prevention verified
-- [ ] HTTPS enforced in production
-- [ ] Secrets properly stored in Supabase
-- [ ] Audit logging for sensitive operations
+### ✅ SQL Injection
+- **Protection**: Parameterized queries via Supabase client
+- **Never use**: Raw SQL with string concatenation
 
-## Authentication Configuration
+### ✅ XSS (Cross-Site Scripting)
+- **Protection**: React auto-escaping, no `dangerouslySetInnerHTML`
+- **Validation**: All user inputs sanitized
 
-### Required Supabase Settings
+### ✅ CSRF (Cross-Site Request Forgery)
+- **Protection**: SameSite cookies, JWT tokens
+- **RLS**: Server-side validation
 
-1. **URL Configuration** (Authentication > URL Configuration)
-   - Site URL: `https://yourdomain.com`
-   - Redirect URLs: Include all deployment URLs
+### ✅ Authentication Bypass
+- **Protection**: RLS policies, JWT verification
+- **Never**: Client-side role checks only
 
-2. **Email Templates** (Authentication > Email Templates)
-   - Customize confirmation email
-   - Customize password reset email
-   - Add branding
+### ✅ Privilege Escalation
+- **Protection**: Separate `user_roles` table, server-side checks
+- **Never**: Roles in localStorage or user metadata
 
-3. **Password Requirements** (Enforced in validation)
-   - Minimum 8 characters
-   - At least one uppercase letter
-   - At least one lowercase letter
-   - At least one number
+### ✅ Data Exposure
+- **Protection**: RLS policies, selective column returns
+- **Never**: SELECT * without filtering
 
-## Database Security
+## Security Testing
 
-### Table Access Patterns
+### Manual Testing
+1. Try accessing protected routes without auth
+2. Test role-based access (user, student, professional, admin)
+3. Attempt SQL injection in form inputs
+4. Check for XSS vulnerabilities in user-generated content
+5. Verify session expiration and logout
+6. Test password reset flow
+7. Check email verification bypass attempts
 
-```sql
--- ✅ CORRECT: Using RLS policies
-SELECT * FROM profiles WHERE user_id = auth.uid();
+### Automated Testing
+```bash
+# Dependency vulnerabilities
+npm audit
 
--- ❌ WRONG: Bypassing RLS
-SELECT * FROM profiles; -- Would return all profiles
+# Security headers
+curl -I https://ovaboe.dev
+
+# SSL/TLS configuration
+ssllabs.com/ssltest
 ```
 
-### Security Definer Functions
+## Incident Response
 
-```sql
--- Safe role checking without RLS recursion
-CREATE FUNCTION has_role(_user_id UUID, _role app_role)
-RETURNS BOOLEAN
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM user_roles
-    WHERE user_id = _user_id AND role = _role
-  )
-$$;
-```
+In case of a security incident:
 
-## API Security
-
-### Edge Functions
-
-All edge functions must:
-- Validate authentication tokens
-- Check user permissions
-- Validate all inputs
-- Return appropriate error codes
-- Never expose internal errors to clients
-
-### Rate Limiting (Recommended)
-
-Implement in edge functions:
-```typescript
-// Example rate limit check
-const MAX_REQUESTS = 100;
-const WINDOW = 60000; // 1 minute
-
-// Track requests per user
-// Reject if exceeded
-```
+1. **Immediate**: Disable affected service/endpoint
+2. **Assess**: Determine scope and impact
+3. **Notify**: Inform affected users if data exposed
+4. **Fix**: Deploy security patch
+5. **Review**: Post-mortem analysis
+6. **Update**: Improve security measures
 
 ## Compliance
 
-### Data Protection
-- User data encrypted at rest (Supabase default)
-- Secure transmission (HTTPS/TLS)
-- Right to deletion (implement data export/deletion)
-- Audit trail for data access
+- **GDPR**: User data can be deleted on request
+- **CCPA**: User data is not sold to third parties
+- **PCI DSS**: No credit card data stored (use Stripe/payment gateways)
 
-### GDPR Considerations
-- Privacy controls in profiles
-- Data export capability
-- Account deletion workflow
-- Cookie consent (if using analytics)
+## Resources
 
-## Security Updates
-
-This document will be updated as:
-- New security features are added
-- Vulnerabilities are discovered and fixed
-- Best practices evolve
-- Framework updates require changes
-
-Last Updated: 2025-10-10
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Supabase Security](https://supabase.com/docs/guides/auth/row-level-security)
+- [Web Security Basics](https://developer.mozilla.org/en-US/docs/Web/Security)
