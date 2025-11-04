@@ -1,28 +1,27 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useCustomAuth } from "@/hooks/useCustomAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { signUpSchema, signInSchema } from "@/lib/validations/auth";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-type UserRole = 'student' | 'professional' | 'user';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
-  const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "", role: "user" as UserRole });
+  const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
-  const [resendEmail, setResendEmail] = useState("");
-  const { signUp, signIn, user } = useAuth();
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpType, setOtpType] = useState<'signup' | 'signin'>('signup');
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [currentOtp, setCurrentOtp] = useState("");
+  const { signUp, signIn, verifyOtp, user } = useCustomAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -49,28 +48,29 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName, signUpData.role);
+    const { error, requiresOtp, otp } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
     setIsLoading(false);
 
-    if (!error) {
-      toast({
-        title: "Success!",
-        description: "Please check your email to verify your account.",
-      });
-      setSignUpData({ email: "", password: "", fullName: "", role: "user" });
-    } else {
+    if (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error,
         variant: "destructive",
       });
+      return;
+    }
+
+    if (requiresOtp) {
+      setShowOtpInput(true);
+      setOtpType('signup');
+      setCurrentEmail(signUpData.email);
+      setCurrentOtp(otp || '');
     }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    setShowResendConfirmation(false);
     
     const validation = signInSchema.safeParse(signInData);
     if (!validation.success) {
@@ -85,47 +85,108 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signIn(signInData.email, signInData.password);
-    setIsLoading(false);
-
-    if (error) {
-      // If login failed, offer to resend confirmation email
-      if (error.message?.includes("Invalid login credentials")) {
-        setShowResendConfirmation(true);
-        setResendEmail(signInData.email);
-      }
-    } else {
-      navigate("/");
-    }
-  };
-
-  const handleResendConfirmation = async () => {
-    if (!resendEmail) return;
-
-    setIsLoading(true);
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: resendEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
+    const { error, requiresOtp, otp } = await signIn(signInData.email, signInData.password);
     setIsLoading(false);
 
     if (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Email sent!",
-        description: "Please check your inbox for the confirmation link.",
-      });
-      setShowResendConfirmation(false);
+      return;
+    }
+
+    if (requiresOtp) {
+      setShowOtpInput(true);
+      setOtpType('signin');
+      setCurrentEmail(signInData.email);
+      setCurrentOtp(otp || '');
     }
   };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!otpCode || otpCode.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "Please enter a valid 6-digit OTP code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await verifyOtp(currentEmail, otpCode, otpType);
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    navigate("/");
+  };
+
+  if (showOtpInput) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Verify OTP</CardTitle>
+            <CardDescription className="text-center">
+              Enter the 6-digit code to complete {otpType === 'signup' ? 'registration' : 'sign in'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <Alert className="bg-primary/10 border-primary">
+                <Key className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  <strong>Your OTP:</strong> <span className="font-mono text-lg">{currentOtp}</span>
+                </AlertDescription>
+              </Alert>
+              <div className="space-y-2">
+                <Label htmlFor="otp">OTP Code</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  className="text-center text-2xl tracking-widest"
+                  required
+                  autoFocus
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  OTP expires in 10 minutes
+                </p>
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify OTP"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setShowOtpInput(false)}
+                disabled={isLoading}
+              >
+                Back to {otpType === 'signup' ? 'Sign Up' : 'Sign In'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
@@ -145,23 +206,6 @@ export default function Auth() {
             
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
-                {showResendConfirmation && (
-                  <Alert>
-                    <Mail className="h-4 w-4" />
-                    <AlertDescription>
-                      Haven't received the confirmation email?{" "}
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="p-0 h-auto"
-                        onClick={handleResendConfirmation}
-                        disabled={isLoading}
-                      >
-                        Click here to resend
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                )}
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <Input
@@ -206,22 +250,6 @@ export default function Auth() {
                   {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-role">I am a</Label>
-                  <Select
-                    value={signUpData.role}
-                    onValueChange={(value: UserRole) => setSignUpData({ ...signUpData, role: value })}
-                  >
-                    <SelectTrigger id="signup-role">
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="user">General User</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input
                     id="signup-email"
@@ -244,7 +272,7 @@ export default function Auth() {
                   />
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   <p className="text-xs text-muted-foreground">
-                    Must be 8+ characters with uppercase, lowercase, and numbers
+                    Must be at least 8 characters
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -256,8 +284,9 @@ export default function Auth() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <Alert className="bg-muted/50">
+            <Key className="h-4 w-4" />
             <AlertDescription className="text-xs text-center">
-              <strong>Note:</strong> Email verification is required. After signing up, check your inbox and verify your email before signing in.
+              <strong>Custom Auth System:</strong> You'll receive a 6-digit OTP code after signup/signin. Enter it to complete authentication.
             </AlertDescription>
           </Alert>
           <p className="text-xs text-center text-muted-foreground">

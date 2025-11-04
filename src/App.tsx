@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { CustomAuthProvider } from "@/hooks/useCustomAuth";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatePresence } from "framer-motion";
@@ -61,7 +61,7 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="ovaboe-theme">
-      <AuthProvider>
+      <CustomAuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -70,7 +70,7 @@ const App = () => (
             <AnimatedRoutes />
           </BrowserRouter>
         </TooltipProvider>
-      </AuthProvider>
+      </CustomAuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
