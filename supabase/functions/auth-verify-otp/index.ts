@@ -11,11 +11,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, otpCode, otpType } = await req.json();
+    const { mobileNumber, countryCode = '+1', otpCode, otpType } = await req.json();
 
-    if (!email || !otpCode || !otpType) {
+    if (!mobileNumber || !otpCode || !otpType) {
       return new Response(
-        JSON.stringify({ error: 'Email, OTP code, and OTP type are required' }),
+        JSON.stringify({ error: 'Mobile number, OTP code, and OTP type are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     const { data: otpRecord, error: otpError } = await supabase
       .from('otp_codes')
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('mobile_number', mobileNumber)
       .eq('otp_code', otpCode)
       .eq('otp_type', otpType)
       .is('used_at', null)
@@ -128,9 +128,11 @@ Deno.serve(async (req) => {
         },
         user: {
           id: user.id,
-          email: user.email,
+          mobileNumber: user.mobile_number,
+          countryCode: user.country_code,
           fullName: user.full_name,
           isVerified: user.is_verified,
+          isActive: user.is_active,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

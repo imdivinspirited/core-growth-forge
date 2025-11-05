@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CustomAuthProvider } from "@/hooks/useCustomAuth";
+import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatePresence } from "framer-motion";
@@ -61,16 +62,18 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="ovaboe-theme">
-      <CustomAuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Preloader />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </CustomAuthProvider>
+      <AuthProvider>
+        <CustomAuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Preloader />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <AnimatedRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </CustomAuthProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

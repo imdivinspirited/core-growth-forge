@@ -1,54 +1,60 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { signUpSchema, signInSchema } from "@/lib/validations/auth";
-import { Loader2, Key } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Key, Chrome, Github } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
-  const [signUpData, setSignUpData] = useState({ email: "", password: "", fullName: "" });
-  const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [signUpData, setSignUpData] = useState({ mobileNumber: "", countryCode: "+1", password: "", fullName: "" });
+  const [signInData, setSignInData] = useState({ mobileNumber: "", countryCode: "+1", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpType, setOtpType] = useState<'signup' | 'signin'>('signup');
-  const [currentEmail, setCurrentEmail] = useState("");
+  const [currentMobile, setCurrentMobile] = useState("");
+  const [currentCountryCode, setCurrentCountryCode] = useState("+1");
   const [currentOtp, setCurrentOtp] = useState("");
-  const { signUp, signIn, verifyOtp, user } = useCustomAuth();
+  const customAuth = useCustomAuth();
+  const oAuth = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
+    if (customAuth.user || oAuth.user) {
       navigate("/", { replace: true });
     }
-  }, [user, navigate]);
+  }, [customAuth.user, oAuth.user, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     
-    const validation = signUpSchema.safeParse(signUpData);
-    if (!validation.success) {
-      const fieldErrors: Record<string, string> = {};
-      validation.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0].toString()] = err.message;
-        }
+    if (!signUpData.mobileNumber || !signUpData.password || !signUpData.fullName) {
+      toast({
+        title: "Validation Error",
+        description: "All fields are required",
+        variant: "destructive",
       });
-      setErrors(fieldErrors);
       return;
     }
 
     setIsLoading(true);
-    const { error, requiresOtp, otp } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+    const { error, requiresOtp, otp } = await customAuth.signUp(
+      signUpData.mobileNumber, 
+      signUpData.countryCode,
+      signUpData.password, 
+      signUpData.fullName
+    );
     setIsLoading(false);
 
     if (error) {
@@ -63,7 +69,8 @@ export default function Auth() {
     if (requiresOtp) {
       setShowOtpInput(true);
       setOtpType('signup');
-      setCurrentEmail(signUpData.email);
+      setCurrentMobile(signUpData.mobileNumber);
+      setCurrentCountryCode(signUpData.countryCode);
       setCurrentOtp(otp || '');
     }
   };
@@ -72,20 +79,21 @@ export default function Auth() {
     e.preventDefault();
     setErrors({});
     
-    const validation = signInSchema.safeParse(signInData);
-    if (!validation.success) {
-      const fieldErrors: Record<string, string> = {};
-      validation.error.issues.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0].toString()] = err.message;
-        }
+    if (!signInData.mobileNumber || !signInData.password) {
+      toast({
+        title: "Validation Error",
+        description: "All fields are required",
+        variant: "destructive",
       });
-      setErrors(fieldErrors);
       return;
     }
 
     setIsLoading(true);
-    const { error, requiresOtp, otp } = await signIn(signInData.email, signInData.password);
+    const { error, requiresOtp, otp } = await customAuth.signIn(
+      signInData.mobileNumber,
+      signInData.countryCode,
+      signInData.password
+    );
     setIsLoading(false);
 
     if (error) {
@@ -100,7 +108,8 @@ export default function Auth() {
     if (requiresOtp) {
       setShowOtpInput(true);
       setOtpType('signin');
-      setCurrentEmail(signInData.email);
+      setCurrentMobile(signInData.mobileNumber);
+      setCurrentCountryCode(signInData.countryCode);
       setCurrentOtp(otp || '');
     }
   };
@@ -118,7 +127,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await verifyOtp(currentEmail, otpCode, otpType);
+    const { error } = await customAuth.verifyOtp(currentMobile, currentCountryCode, otpCode, otpType);
     setIsLoading(false);
 
     if (error) {
@@ -207,16 +216,31 @@ export default function Auth() {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-country">Country Code</Label>
+                  <Select value={signInData.countryCode} onValueChange={(value) => setSignInData({ ...signInData, countryCode: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+1">+1 (US/Canada)</SelectItem>
+                      <SelectItem value="+44">+44 (UK)</SelectItem>
+                      <SelectItem value="+91">+91 (India)</SelectItem>
+                      <SelectItem value="+86">+86 (China)</SelectItem>
+                      <SelectItem value="+61">+61 (Australia)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-mobile">Mobile Number</Label>
                   <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={signInData.email}
-                    onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                    id="signin-mobile"
+                    type="tel"
+                    placeholder="1234567890"
+                    value={signInData.mobileNumber}
+                    onChange={(e) => setSignInData({ ...signInData, mobileNumber: e.target.value.replace(/\D/g, '') })}
                     required
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.mobileNumber && <p className="text-sm text-destructive">{errors.mobileNumber}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Password</Label>
@@ -233,6 +257,36 @@ export default function Auth() {
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
                 </Button>
               </form>
+
+              <div className="mt-6">
+                <Separator className="my-4" />
+                <p className="text-center text-sm text-muted-foreground mb-4">Or continue with</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => oAuth.signInWithOAuth('google')}
+                    disabled={isLoading}
+                  >
+                    <Chrome className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => oAuth.signInWithOAuth('github')}
+                    disabled={isLoading}
+                  >
+                    <Github className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => oAuth.signInWithOAuth('facebook')}
+                    disabled={isLoading}
+                  >
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
             
             <TabsContent value="signup">
@@ -250,16 +304,31 @@ export default function Auth() {
                   {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-country">Country Code</Label>
+                  <Select value={signUpData.countryCode} onValueChange={(value) => setSignUpData({ ...signUpData, countryCode: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+1">+1 (US/Canada)</SelectItem>
+                      <SelectItem value="+44">+44 (UK)</SelectItem>
+                      <SelectItem value="+91">+91 (India)</SelectItem>
+                      <SelectItem value="+86">+86 (China)</SelectItem>
+                      <SelectItem value="+61">+61 (Australia)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-mobile">Mobile Number</Label>
                   <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={signUpData.email}
-                    onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                    id="signup-mobile"
+                    type="tel"
+                    placeholder="1234567890"
+                    value={signUpData.mobileNumber}
+                    onChange={(e) => setSignUpData({ ...signUpData, mobileNumber: e.target.value.replace(/\D/g, '') })}
                     required
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.mobileNumber && <p className="text-sm text-destructive">{errors.mobileNumber}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
@@ -286,7 +355,7 @@ export default function Auth() {
           <Alert className="bg-muted/50">
             <Key className="h-4 w-4" />
             <AlertDescription className="text-xs text-center">
-              <strong>Custom Auth System:</strong> You'll receive a 6-digit OTP code after signup/signin. Enter it to complete authentication.
+              <strong>Dual Auth System:</strong> Sign in with mobile + OTP or use OAuth (Google/GitHub/Facebook). OTP codes are displayed for testing.
             </AlertDescription>
           </Alert>
           <p className="text-xs text-center text-muted-foreground">

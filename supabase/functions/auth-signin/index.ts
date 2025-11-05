@@ -11,11 +11,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password } = await req.json();
+    const { mobileNumber, countryCode = '+1', password } = await req.json();
 
-    if (!email || !password) {
+    if (!mobileNumber || !password) {
       return new Response(
-        JSON.stringify({ error: 'Email and password are required' }),
+        JSON.stringify({ error: 'Mobile number and password are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -35,13 +35,14 @@ Deno.serve(async (req) => {
     const { data: user, error: userError } = await supabase
       .from('custom_users')
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
       .eq('password_hash', passwordHash)
       .maybeSingle();
 
     if (userError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Invalid email or password' }),
+        JSON.stringify({ error: 'Invalid mobile number or password' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -56,9 +57,10 @@ Deno.serve(async (req) => {
     if (!user.is_verified) {
       return new Response(
         JSON.stringify({ 
-          error: 'Email not verified. Please complete signup verification first.',
+          error: 'Mobile number not verified. Please complete signup verification first.',
           needsVerification: true,
-          email: user.email
+          mobileNumber: user.mobile_number,
+          countryCode: user.country_code
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -71,7 +73,7 @@ Deno.serve(async (req) => {
     // Store OTP
     const { error: otpError } = await supabase.from('otp_codes').insert({
       user_id: user.id,
-      email: user.email,
+      mobile_number: user.mobile_number,
       otp_code: otpCode,
       otp_type: 'signin',
       expires_at: expiresAt,
@@ -86,12 +88,13 @@ Deno.serve(async (req) => {
     }
 
     // Log OTP to console
-    console.log(`[SIGNIN OTP for ${email}]: ${otpCode}`);
+    console.log(`[SIGNIN OTP for ${user.country_code}${user.mobile_number}]: ${otpCode}`);
 
     return new Response(
       JSON.stringify({
         message: 'OTP sent. Please check console for OTP code.',
-        email: user.email,
+        mobileNumber: user.mobile_number,
+        countryCode: user.country_code,
         requiresOtp: true,
         otp: otpCode // For testing - remove in production
       }),

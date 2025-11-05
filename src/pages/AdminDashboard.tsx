@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
-  const { user, hasRole } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -32,8 +32,16 @@ const AdminDashboard = () => {
   }, [isAdmin]);
 
   const checkAdminRole = async () => {
-    const adminStatus = await hasRole("admin");
-    if (!adminStatus) {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+    
+    if (!data) {
       toast({
         title: "Access Denied",
         description: "You need admin privileges to access this page",

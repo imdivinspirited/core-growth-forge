@@ -11,26 +11,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password, fullName } = await req.json();
+    const { mobileNumber, countryCode = '+1', password, fullName } = await req.json();
 
-    // Validate input
-    if (!email || !password) {
+    if (!mobileNumber || !password) {
       return new Response(
-        JSON.stringify({ error: 'Email and password are required' }),
+        JSON.stringify({ error: 'Mobile number and password are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Validate mobile number format (basic validation)
+    const mobileRegex = /^[0-9]{10,15}$/;
+    if (!mobileRegex.test(mobileNumber)) {
       return new Response(
-        JSON.stringify({ error: 'Invalid email format' }),
+        JSON.stringify({ error: 'Invalid mobile number format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Password validation
     if (password.length < 8) {
       return new Response(
         JSON.stringify({ error: 'Password must be at least 8 characters' }),
@@ -45,40 +43,16 @@ Deno.serve(async (req) => {
     // Check if user already exists
     const { data: existingUser } = await supabase
       .from('custom_users')
-      .select('id, email, is_verified')
-      .eq('email', email.toLowerCase())
+      .select('id')
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
       .maybeSingle();
 
     if (existingUser) {
-      if (existingUser.is_verified) {
-        return new Response(
-          JSON.stringify({ error: 'Email already registered. Please sign in.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } else {
-        // Resend OTP for unverified user
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-        await supabase.from('otp_codes').insert({
-          user_id: existingUser.id,
-          email: email.toLowerCase(),
-          otp_code: otpCode,
-          otp_type: 'signup',
-          expires_at: expiresAt,
-        });
-
-        console.log(`[SIGNUP OTP for ${email}]: ${otpCode}`);
-
-        return new Response(
-          JSON.stringify({ 
-            message: 'OTP sent. Please check console for OTP code.',
-            email: email.toLowerCase(),
-            otp: otpCode // For testing - remove in production
-          }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      return new Response(
+        JSON.stringify({ error: 'User with this mobile number already exists' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Hash password
@@ -89,19 +63,20 @@ Deno.serve(async (req) => {
     const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     // Create user
-    const { data: newUser, error: userError } = await supabase
+    const { data: newUser, error: createError } = await supabase
       .from('custom_users')
       .insert({
-        email: email.toLowerCase(),
+        mobile_number: mobileNumber,
+        country_code: countryCode,
         password_hash: passwordHash,
         full_name: fullName,
-        is_verified: false,
+        auth_provider: 'custom',
       })
       .select()
       .single();
 
-    if (userError) {
-      console.error('Error creating user:', userError);
+    if (createError) {
+      console.error('Error creating user:', createError);
       return new Response(
         JSON.stringify({ error: 'Failed to create user' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -115,7 +90,7 @@ Deno.serve(async (req) => {
     // Store OTP
     const { error: otpError } = await supabase.from('otp_codes').insert({
       user_id: newUser.id,
-      email: email.toLowerCase(),
+      mobile_number: newUser.mobile_number,
       otp_code: otpCode,
       otp_type: 'signup',
       expires_at: expiresAt,
@@ -129,16 +104,18 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Log OTP to console (since we're not sending emails)
-    console.log(`[SIGNUP OTP for ${email}]: ${otpCode}`);
+    // Log OTP to console
+    console.log(`[SIGNUP OTP for ${countryCode}${mobileNumber}]: ${otpCode}`);
 
     return new Response(
-      JSON.stringify({ 
-        message: 'Account created! OTP sent. Please check console for OTP code.',
-        email: email.toLowerCase(),
+      JSON.stringify({
+        message: 'User created successfully. OTP sent to console.',
+        mobileNumber: newUser.mobile_number,
+        countryCode: newUser.country_code,
+        requiresOtp: true,
         otp: otpCode // For testing - remove in production
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error in auth-signup:', error);

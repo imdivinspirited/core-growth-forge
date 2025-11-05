@@ -482,35 +482,47 @@ export type Database = {
       }
       custom_users: {
         Row: {
+          auth_provider: string | null
+          auth_user_id: string | null
+          country_code: string | null
           created_at: string | null
-          email: string
+          email: string | null
           full_name: string | null
           id: string
           is_active: boolean | null
           is_verified: boolean | null
           last_login_at: string | null
+          mobile_number: string | null
           password_hash: string
           updated_at: string | null
         }
         Insert: {
+          auth_provider?: string | null
+          auth_user_id?: string | null
+          country_code?: string | null
           created_at?: string | null
-          email: string
+          email?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
           last_login_at?: string | null
+          mobile_number?: string | null
           password_hash: string
           updated_at?: string | null
         }
         Update: {
+          auth_provider?: string | null
+          auth_user_id?: string | null
+          country_code?: string | null
           created_at?: string | null
-          email?: string
+          email?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
           last_login_at?: string | null
+          mobile_number?: string | null
           password_hash?: string
           updated_at?: string | null
         }
@@ -700,9 +712,10 @@ export type Database = {
       otp_codes: {
         Row: {
           created_at: string | null
-          email: string
+          email: string | null
           expires_at: string
           id: string
+          mobile_number: string | null
           otp_code: string
           otp_type: string
           used_at: string | null
@@ -710,9 +723,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          email: string
+          email?: string | null
           expires_at: string
           id?: string
+          mobile_number?: string | null
           otp_code: string
           otp_type: string
           used_at?: string | null
@@ -720,9 +734,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          email?: string
+          email?: string | null
           expires_at?: string
           id?: string
+          mobile_number?: string | null
           otp_code?: string
           otp_type?: string
           used_at?: string | null
@@ -795,11 +810,14 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          country_code: string | null
           cover_photo_url: string | null
           created_at: string
           full_name: string | null
           id: string
           language_preference: string | null
+          mobile_number: string | null
+          mobile_verified: boolean | null
           privacy_profile: string | null
           theme_preference: string | null
           updated_at: string
@@ -809,11 +827,14 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          country_code?: string | null
           cover_photo_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
           language_preference?: string | null
+          mobile_number?: string | null
+          mobile_verified?: boolean | null
           privacy_profile?: string | null
           theme_preference?: string | null
           updated_at?: string
@@ -823,11 +844,14 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          country_code?: string | null
           cover_photo_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
           language_preference?: string | null
+          mobile_number?: string | null
+          mobile_verified?: boolean | null
           privacy_profile?: string | null
           theme_preference?: string | null
           updated_at?: string

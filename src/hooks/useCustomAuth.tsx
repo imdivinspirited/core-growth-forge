@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 
 interface User {
   id: string;
-  email: string;
+  mobileNumber: string;
+  countryCode: string;
   fullName?: string;
   isVerified: boolean;
   isActive: boolean;
@@ -13,9 +14,9 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
-  signIn: (email: string, password: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
-  verifyOtp: (email: string, otpCode: string, otpType: 'signup' | 'signin') => Promise<{ error: any }>;
+  signUp: (mobileNumber: string, countryCode: string, password: string, fullName: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
+  signIn: (mobileNumber: string, countryCode: string, password: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
+  verifyOtp: (mobileNumber: string, countryCode: string, otpCode: string, otpType: 'signup' | 'signin') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sessionToken: string | null;
 }
@@ -63,10 +64,10 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (mobileNumber: string, countryCode: string, password: string, fullName: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('auth-signup', {
-        body: { email, password, fullName },
+        body: { mobileNumber, countryCode, password, fullName },
       });
 
       if (error) {
@@ -89,10 +90,10 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (mobileNumber: string, countryCode: string, password: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('auth-signin', {
-        body: { email, password },
+        body: { mobileNumber, countryCode, password },
       });
 
       if (error) {
@@ -115,10 +116,10 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const verifyOtp = async (email: string, otpCode: string, otpType: 'signup' | 'signin') => {
+  const verifyOtp = async (mobileNumber: string, countryCode: string, otpCode: string, otpType: 'signup' | 'signin') => {
     try {
       const { data, error } = await supabase.functions.invoke('auth-verify-otp', {
-        body: { email, otpCode, otpType },
+        body: { mobileNumber, countryCode, otpCode, otpType },
       });
 
       if (error) {
