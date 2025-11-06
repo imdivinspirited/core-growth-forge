@@ -14,13 +14,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
 export default function Auth() {
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const [isLoading, setIsLoading] = useState(false);
   const [signUpData, setSignUpData] = useState({ mobileNumber: "", countryCode: "+1", password: "", fullName: "" });
   const [signInData, setSignInData] = useState({ mobileNumber: "", countryCode: "+1", password: "" });
+  const [forgotData, setForgotData] = useState({ mobileNumber: "", countryCode: "+1", newPassword: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [otpType, setOtpType] = useState<'signup' | 'signin'>('signup');
+  const [otpType, setOtpType] = useState<'signup' | 'signin' | 'password_reset'>('signup');
   const [currentMobile, setCurrentMobile] = useState("");
   const [currentCountryCode, setCurrentCountryCode] = useState("+1");
   const [currentOtp, setCurrentOtp] = useState("");
@@ -114,6 +116,44 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    
+    if (!forgotData.mobileNumber) {
+      toast({
+        title: "Validation Error",
+        description: "Mobile number is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error, requiresOtp, otp } = await customAuth.forgotPassword(
+      forgotData.mobileNumber,
+      forgotData.countryCode
+    );
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (requiresOtp) {
+      setShowOtpInput(true);
+      setOtpType('password_reset');
+      setCurrentMobile(forgotData.mobileNumber);
+      setCurrentCountryCode(forgotData.countryCode);
+      setCurrentOtp(otp || '');
+    }
+  };
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -127,6 +167,42 @@ export default function Auth() {
     }
 
     setIsLoading(true);
+    
+    if (otpType === 'password_reset') {
+      if (!forgotData.newPassword || forgotData.newPassword.length < 8) {
+        toast({
+          title: "Validation Error",
+          description: "Password must be at least 8 characters",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      const { error } = await customAuth.resetPassword(
+        currentMobile,
+        currentCountryCode,
+        otpCode,
+        forgotData.newPassword
+      );
+      setIsLoading(false);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setShowOtpInput(false);
+      setMode('signin');
+      setOtpCode('');
+      setForgotData({ mobileNumber: "", countryCode: "+1", newPassword: "" });
+      return;
+    }
+    
     const { error } = await customAuth.verifyOtp(currentMobile, currentCountryCode, otpCode, otpType);
     setIsLoading(false);
 
@@ -149,7 +225,7 @@ export default function Auth() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Verify OTP</CardTitle>
             <CardDescription className="text-center">
-              Enter the 6-digit code to complete {otpType === 'signup' ? 'registration' : 'sign in'}
+              Enter the 6-digit code to complete {otpType === 'signup' ? 'registration' : otpType === 'signin' ? 'sign in' : 'password reset'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -178,17 +254,39 @@ export default function Auth() {
                   OTP expires in 10 minutes
                 </p>
               </div>
+              
+              {otpType === 'password_reset' && (
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={forgotData.newPassword}
+                    onChange={(e) => setForgotData({ ...forgotData, newPassword: e.target.value })}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Must be at least 8 characters
+                  </p>
+                </div>
+              )}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify OTP"}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                  otpType === 'password_reset' ? 'Reset Password' : 'Verify OTP'
+                )}
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 className="w-full"
-                onClick={() => setShowOtpInput(false)}
+                onClick={() => {
+                  setShowOtpInput(false);
+                  setOtpCode('');
+                }}
                 disabled={isLoading}
               >
-                Back to {otpType === 'signup' ? 'Sign Up' : 'Sign In'}
+                Back
               </Button>
             </form>
           </CardContent>
@@ -207,10 +305,11 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value={mode} onValueChange={(v) => setMode(v as 'signin' | 'signup' | 'forgot')} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="forgot">Reset</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
@@ -349,13 +448,48 @@ export default function Auth() {
                 </Button>
               </form>
             </TabsContent>
+
+            <TabsContent value="forgot">
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-country">Country Code</Label>
+                  <Select value={forgotData.countryCode} onValueChange={(value) => setForgotData({ ...forgotData, countryCode: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+1">+1 (US/Canada)</SelectItem>
+                      <SelectItem value="+44">+44 (UK)</SelectItem>
+                      <SelectItem value="+91">+91 (India)</SelectItem>
+                      <SelectItem value="+86">+86 (China)</SelectItem>
+                      <SelectItem value="+61">+61 (Australia)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-mobile">Mobile Number</Label>
+                  <Input
+                    id="forgot-mobile"
+                    type="tel"
+                    placeholder="1234567890"
+                    value={forgotData.mobileNumber}
+                    onChange={(e) => setForgotData({ ...forgotData, mobileNumber: e.target.value.replace(/\D/g, '') })}
+                    required
+                  />
+                  {errors.mobileNumber && <p className="text-sm text-destructive">{errors.mobileNumber}</p>}
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Reset OTP"}
+                </Button>
+              </form>
+            </TabsContent>
           </Tabs>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <Alert className="bg-muted/50">
             <Key className="h-4 w-4" />
             <AlertDescription className="text-xs text-center">
-              <strong>Dual Auth System:</strong> Sign in with mobile + OTP or use OAuth (Google/GitHub/Facebook). OTP codes are displayed for testing.
+              <strong>Hybrid Auth System:</strong> Sign in with mobile + SMS OTP or use OAuth (Google/GitHub/Facebook). Password reset available.
             </AlertDescription>
           </Alert>
           <p className="text-xs text-center text-muted-foreground">

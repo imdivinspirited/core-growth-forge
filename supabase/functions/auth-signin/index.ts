@@ -5,6 +5,46 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function sendSMS(to: string, message: string) {
+  const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+  const authToken = Deno.env.get('TWILIO_AUTH_TOKEN');
+  const twilioPhone = Deno.env.get('TWILIO_PHONE_NUMBER');
+
+  if (!accountSid || !authToken || !twilioPhone) {
+    console.log('SMS not configured. OTP:', message);
+    return { success: false, error: 'SMS service not configured' };
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          To: to,
+          From: twilioPhone,
+          Body: message,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Twilio error:', error);
+      return { success: false, error: 'Failed to send SMS' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('SMS sending error:', error);
+    return { success: false, error: 'Failed to send SMS' };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -87,16 +127,25 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Log OTP to console
-    console.log(`[SIGNIN OTP for ${user.country_code}${user.mobile_number}]: ${otpCode}`);
+    // Send SMS
+    const fullNumber = `${user.country_code}${user.mobile_number}`;
+    const smsResult = await sendSMS(
+      fullNumber,
+      `Your login OTP is: ${otpCode}. Valid for 10 minutes.`
+    );
+
+    console.log(`[SIGNIN OTP for ${fullNumber}]: ${otpCode}`);
 
     return new Response(
       JSON.stringify({
-        message: 'OTP sent. Please check console for OTP code.',
+        message: smsResult.success 
+          ? 'OTP sent to your mobile number' 
+          : 'OTP generated (SMS service not configured)',
         mobileNumber: user.mobile_number,
         countryCode: user.country_code,
         requiresOtp: true,
-        otp: otpCode // For testing - remove in production
+        otp: otpCode, // For testing - remove in production
+        smsSent: smsResult.success,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

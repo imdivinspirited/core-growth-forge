@@ -51,27 +51,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { mobileNumber, countryCode = '+1', password, fullName } = await req.json();
+    const { mobileNumber, countryCode = '+1' } = await req.json();
 
-    if (!mobileNumber || !password) {
+    if (!mobileNumber) {
       return new Response(
-        JSON.stringify({ error: 'Mobile number and password are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Validate mobile number format (basic validation)
-    const mobileRegex = /^[0-9]{10,15}$/;
-    if (!mobileRegex.test(mobileNumber)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid mobile number format' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (password.length < 8) {
-      return new Response(
-        JSON.stringify({ error: 'Password must be at least 8 characters' }),
+        JSON.stringify({ error: 'Mobile number is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -80,59 +64,38 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
+    // Find user
+    const { data: user, error: userError } = await supabase
       .from('custom_users')
-      .select('id')
+      .select('*')
       .eq('mobile_number', mobileNumber)
       .eq('country_code', countryCode)
       .maybeSingle();
 
-    if (existingUser) {
+    if (userError || !user) {
       return new Response(
-        JSON.stringify({ error: 'User with this mobile number already exists' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Mobile number not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Hash password
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-    // Create user
-    const { data: newUser, error: createError } = await supabase
-      .from('custom_users')
-      .insert({
-        mobile_number: mobileNumber,
-        country_code: countryCode,
-        password_hash: passwordHash,
-        full_name: fullName,
-        auth_provider: 'custom',
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      console.error('Error creating user:', createError);
+    if (!user.is_active) {
       return new Response(
-        JSON.stringify({ error: 'Failed to create user' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Account is deactivated' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Generate OTP
+    // Generate OTP for password reset
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     // Store OTP
     const { error: otpError } = await supabase.from('otp_codes').insert({
-      user_id: newUser.id,
-      mobile_number: newUser.mobile_number,
+      user_id: user.id,
+      mobile_number: user.mobile_number,
       otp_code: otpCode,
-      otp_type: 'signup',
+      otp_type: 'password_reset',
       expires_at: expiresAt,
     });
 
@@ -148,26 +111,24 @@ Deno.serve(async (req) => {
     const fullNumber = `${countryCode}${mobileNumber}`;
     const smsResult = await sendSMS(
       fullNumber,
-      `Welcome! Your verification OTP is: ${otpCode}. Valid for 10 minutes.`
+      `Your password reset OTP is: ${otpCode}. Valid for 10 minutes.`
     );
 
-    console.log(`[SIGNUP OTP for ${fullNumber}]: ${otpCode}`);
+    console.log(`[PASSWORD RESET OTP for ${fullNumber}]: ${otpCode}`);
 
     return new Response(
       JSON.stringify({
         message: smsResult.success 
-          ? 'User created successfully. OTP sent to your mobile.' 
-          : 'User created. OTP generated (SMS service not configured)',
-        mobileNumber: newUser.mobile_number,
-        countryCode: newUser.country_code,
+          ? 'OTP sent to your mobile number' 
+          : 'OTP generated (SMS service not configured)',
         requiresOtp: true,
         otp: otpCode, // For testing - remove in production
         smsSent: smsResult.success,
       }),
-      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in auth-signup:', error);
+    console.error('Error in auth-forgot-password:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

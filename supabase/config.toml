@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.auth-signout]
 verify_jwt = false
+
+[functions.auth-forgot-password]
+verify_jwt = false
+
+[functions.auth-reset-password]
+verify_jwt = false

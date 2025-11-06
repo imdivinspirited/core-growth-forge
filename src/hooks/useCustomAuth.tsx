@@ -17,6 +17,9 @@ interface AuthContextType {
   signUp: (mobileNumber: string, countryCode: string, password: string, fullName: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
   signIn: (mobileNumber: string, countryCode: string, password: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
   verifyOtp: (mobileNumber: string, countryCode: string, otpCode: string, otpType: 'signup' | 'signin') => Promise<{ error: any }>;
+  forgotPassword: (mobileNumber: string, countryCode: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
+  resetPassword: (mobileNumber: string, countryCode: string, otpCode: string, newPassword: string) => Promise<{ error: any }>;
+  updateProfile: (updates: Partial<User>) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sessionToken: string | null;
 }
@@ -142,6 +145,78 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const forgotPassword = async (mobileNumber: string, countryCode: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('auth-forgot-password', {
+        body: { mobileNumber, countryCode },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (data.error) {
+        return { error: data.error };
+      }
+
+      toast.success(`Password reset OTP sent! Your OTP: ${data.otp}`);
+      
+      return { 
+        error: null, 
+        requiresOtp: true,
+        otp: data.otp 
+      };
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  };
+
+  const resetPassword = async (mobileNumber: string, countryCode: string, otpCode: string, newPassword: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('auth-reset-password', {
+        body: { mobileNumber, countryCode, otpCode, newPassword },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (data.error) {
+        return { error: data.error };
+      }
+
+      toast.success('Password reset successfully!');
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  };
+
+  const updateProfile = async (updates: Partial<User>) => {
+    try {
+      if (!user || !sessionToken) {
+        return { error: 'Not authenticated' };
+      }
+
+      const { data, error } = await supabase
+        .from('custom_users')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      setUser({ ...user, ...data });
+      toast.success('Profile updated successfully');
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message };
+    }
+  };
+
   const signOut = async () => {
     try {
       if (sessionToken) {
@@ -161,7 +236,18 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, verifyOtp, signOut, sessionToken }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signUp, 
+      signIn, 
+      verifyOtp, 
+      forgotPassword, 
+      resetPassword, 
+      updateProfile,
+      signOut, 
+      sessionToken 
+    }}>
       {children}
     </AuthContext.Provider>
   );

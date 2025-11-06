@@ -15,6 +15,7 @@ import { updateSEO, defaultSEO } from "@/lib/seo";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import SkillSpace from "./pages/SkillSpace";
 import ThinkSpace from "./pages/ThinkSpace";
 import Workshop from "./pages/Workshop";
@@ -44,6 +45,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
         <Route path="/skillspace" element={<ProtectedRoute><SkillSpace /></ProtectedRoute>} />
         <Route path="/thinkspace" element={<ProtectedRoute><ThinkSpace /></ProtectedRoute>} />
         <Route path="/thinkspace/write" element={<ProtectedRoute><BlogWriter /></ProtectedRoute>} />
