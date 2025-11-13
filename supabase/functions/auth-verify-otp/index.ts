@@ -99,6 +99,52 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Check for 2FA requirement
+    const { data: twoFactorSettings } = await supabase
+      .from('two_factor_settings')
+      .select('enabled')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (twoFactorSettings?.enabled) {
+      // User has 2FA enabled - require TOTP verification
+      return new Response(
+        JSON.stringify({
+          requires2FA: true,
+          sessionToken: sessionToken,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Detect new device (check if IP or user agent is new)
+    const currentIp = req.headers.get('x-forwarded-for') || 'unknown';
+    const currentUserAgent = req.headers.get('user-agent') || 'unknown';
+    
+    const { data: recentSessions } = await supabase
+      .from('user_sessions')
+      .select('ip_address, user_agent')
+      .eq('user_id', user.id)
+      .neq('id', session.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    const isNewDevice = !recentSessions?.some(
+      s => s.ip_address === currentIp || s.user_agent === currentUserAgent
+    );
+
+    if (isNewDevice) {
+      // Send new device alert asynchronously
+      supabase.functions.invoke('send-security-alert', {
+        body: {
+          userId: user.id,
+          ipAddress: currentIp,
+          userAgent: currentUserAgent,
+          alertType: 'new_device_signin',
+        },
+      }).catch(e => console.error('Failed to send security alert:', e));
+    }
+
     // Update last login
     await supabase
       .from('custom_users')

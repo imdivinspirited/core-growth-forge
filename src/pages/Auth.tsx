@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import { useAuth } from "@/hooks/useAuth";
+import { use2FA } from "@/hooks/use2FA";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Key, Chrome, Github } from "lucide-react";
+import { Loader2, Key, Chrome, Github, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
@@ -21,12 +22,17 @@ export default function Auth() {
   const [forgotData, setForgotData] = useState({ mobileNumber: "", countryCode: "+1", newPassword: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [show2FAInput, setShow2FAInput] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [useRecoveryCode, setUseRecoveryCode] = useState(false);
   const [otpType, setOtpType] = useState<'signup' | 'signin' | 'password_reset'>('signup');
   const [currentMobile, setCurrentMobile] = useState("");
   const [currentCountryCode, setCurrentCountryCode] = useState("+1");
+  const [tempSessionToken, setTempSessionToken] = useState<string | null>(null);
   const customAuth = useCustomAuth();
   const oAuth = useAuth();
+  const twoFA = use2FA(tempSessionToken);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,7 +56,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error, requiresOtp, otp } = await customAuth.signUp(
+    const { error, requiresOtp } = await customAuth.signUp(
       signUpData.mobileNumber, 
       signUpData.countryCode,
       signUpData.password, 
@@ -89,7 +95,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error, requiresOtp, otp } = await customAuth.signIn(
+    const { error, requiresOtp } = await customAuth.signIn(
       signInData.mobileNumber,
       signInData.countryCode,
       signInData.password
@@ -127,7 +133,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error, requiresOtp, otp } = await customAuth.forgotPassword(
+    const { error, requiresOtp } = await customAuth.forgotPassword(
       forgotData.mobileNumber,
       forgotData.countryCode
     );
@@ -199,7 +205,43 @@ export default function Auth() {
       return;
     }
     
-    const { error } = await customAuth.verifyOtp(currentMobile, currentCountryCode, otpCode, otpType);
+    const result = await customAuth.verifyOtp(currentMobile, currentCountryCode, otpCode, otpType);
+    setIsLoading(false);
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if 2FA is required
+    if (result.requires2FA && result.sessionToken) {
+      setTempSessionToken(result.sessionToken);
+      setShowOtpInput(false);
+      setShow2FAInput(true);
+      return;
+    }
+
+    navigate("/");
+  };
+
+  const handleVerify2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!twoFactorCode || twoFactorCode.length < 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a valid code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const { user, session, error } = await twoFA.verify2FASignin(twoFactorCode, useRecoveryCode);
     setIsLoading(false);
 
     if (error) {
@@ -211,8 +253,90 @@ export default function Auth() {
       return;
     }
 
-    navigate("/");
+    if (user && session) {
+      // Update session in customAuth context
+      localStorage.setItem('custom_session_token', session.token);
+      navigate("/");
+      window.location.reload(); // Reload to update auth state
+    }
   };
+
+  if (show2FAInput) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+              <Shield className="h-6 w-6" />
+              Two-Factor Authentication
+            </CardTitle>
+            <CardDescription className="text-center">
+              Enter your authentication code
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleVerify2FA} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="2fa-code">
+                  {useRecoveryCode ? "Recovery Code" : "Authenticator Code"}
+                </Label>
+                <Input
+                  id="2fa-code"
+                  type="text"
+                  inputMode={useRecoveryCode ? "text" : "numeric"}
+                  maxLength={useRecoveryCode ? 10 : 6}
+                  placeholder={useRecoveryCode ? "XXXXXXXXXX" : "123456"}
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(
+                    useRecoveryCode 
+                      ? e.target.value.toUpperCase() 
+                      : e.target.value.replace(/\D/g, '')
+                  )}
+                  className="text-center text-2xl tracking-widest"
+                  required
+                  autoFocus
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  {useRecoveryCode 
+                    ? "Enter a recovery code from your saved codes" 
+                    : "Enter the 6-digit code from your authenticator app"
+                  }
+                </p>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setUseRecoveryCode(!useRecoveryCode)}
+                disabled={isLoading}
+              >
+                {useRecoveryCode ? "Use Authenticator Code" : "Use Recovery Code"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setShow2FAInput(false);
+                  setTwoFactorCode('');
+                  setTempSessionToken(null);
+                }}
+                disabled={isLoading}
+              >
+                Back
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (showOtpInput) {
     return (

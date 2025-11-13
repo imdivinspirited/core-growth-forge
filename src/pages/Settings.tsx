@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AccountInfo } from "@/components/settings/AccountInfo";
 import { Preferences } from "@/components/settings/Preferences";
+import { TwoFactorAuth } from "@/components/settings/TwoFactorAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Settings = () => {
@@ -21,9 +22,10 @@ const Settings = () => {
             </div>
 
             <Tabs defaultValue="account" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="account">Account</TabsTrigger>
                 <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
               </TabsList>
 
               <TabsContent value="account" className="mt-6">
@@ -32,6 +34,10 @@ const Settings = () => {
 
               <TabsContent value="preferences" className="mt-6">
                 <Preferences />
+              </TabsContent>
+
+              <TabsContent value="security" className="mt-6">
+                <TwoFactorAuth />
               </TabsContent>
             </Tabs>
           </div>

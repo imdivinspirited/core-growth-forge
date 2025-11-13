@@ -35,3 +35,12 @@ verify_jwt = false
 
 [functions.twofactor-verify]
 verify_jwt = false
+
+[functions.twofactor-signin]
+verify_jwt = false
+
+[functions.twofactor-disable]
+verify_jwt = false
+
+[functions.send-security-alert]
+verify_jwt = false

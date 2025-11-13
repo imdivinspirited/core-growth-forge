@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import Chat from "./pages/Chat";
 import Tourism from "./pages/Tourism";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAuthCenter from "./pages/AdminAuthCenter";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const AnimatedRoutes = () => {
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/tourism" element={<ProtectedRoute><Tourism /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/auth-center" element={<ProtectedRoute><AdminAuthCenter /></ProtectedRoute>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

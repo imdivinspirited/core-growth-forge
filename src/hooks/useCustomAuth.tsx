@@ -14,10 +14,10 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (mobileNumber: string, countryCode: string, password: string, fullName: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
-  signIn: (mobileNumber: string, countryCode: string, password: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
-  verifyOtp: (mobileNumber: string, countryCode: string, otpCode: string, otpType: 'signup' | 'signin') => Promise<{ error: any }>;
-  forgotPassword: (mobileNumber: string, countryCode: string) => Promise<{ error: any; requiresOtp?: boolean; otp?: string }>;
+  signUp: (mobileNumber: string, countryCode: string, password: string, fullName: string) => Promise<{ error: any; requiresOtp?: boolean }>;
+  signIn: (mobileNumber: string, countryCode: string, password: string) => Promise<{ error: any; requiresOtp?: boolean }>;
+  verifyOtp: (mobileNumber: string, countryCode: string, otpCode: string, otpType: 'signup' | 'signin') => Promise<{ error: any; requires2FA?: boolean; sessionToken?: string }>;
+  forgotPassword: (mobileNumber: string, countryCode: string) => Promise<{ error: any; requiresOtp?: boolean }>;
   resetPassword: (mobileNumber: string, countryCode: string, otpCode: string, newPassword: string) => Promise<{ error: any }>;
   updateProfile: (updates: Partial<User>) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -129,6 +129,11 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
 
       if (data.error) {
         return { error: data.error };
+      }
+
+      // Check if 2FA is required
+      if (data.requires2FA) {
+        return { error: null, requires2FA: true, sessionToken: data.sessionToken };
       }
 
       // Store session
