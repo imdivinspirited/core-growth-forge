@@ -81,12 +81,11 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
         return { error: data.error };
       }
 
-      toast.success(`OTP sent to console! Your OTP: ${data.otp}`);
+      toast.success('OTP sent to your mobile number');
       
       return { 
         error: null, 
-        requiresOtp: true,
-        otp: data.otp 
+        requiresOtp: true
       };
     } catch (error: any) {
       return { error: error.message };
@@ -107,12 +106,11 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
         return { error: data.error };
       }
 
-      toast.success(`OTP sent to console! Your OTP: ${data.otp}`);
+      toast.success('OTP sent to your mobile number');
 
       return { 
         error: null, 
-        requiresOtp: true,
-        otp: data.otp
+        requiresOtp: true
       };
     } catch (error: any) {
       return { error: error.message };
@@ -159,12 +157,11 @@ export function CustomAuthProvider({ children }: { children: ReactNode }) {
         return { error: data.error };
       }
 
-      toast.success(`Password reset OTP sent! Your OTP: ${data.otp}`);
+      toast.success('Password reset OTP sent to your mobile number');
       
       return { 
         error: null, 
-        requiresOtp: true,
-        otp: data.otp 
+        requiresOtp: true
       };
     } catch (error: any) {
       return { error: error.message };

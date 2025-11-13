@@ -64,6 +64,40 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Rate limiting: max 5 OTPs per hour and 1 per 60 seconds per mobile for signin
+    const ONE_HOUR_AGO = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: hourCount } = await supabase
+      .from('otp_codes')
+      .select('id', { count: 'exact', head: true })
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
+      .eq('otp_type', 'signin')
+      .gte('created_at', ONE_HOUR_AGO);
+
+    if ((hourCount || 0) >= 5) {
+      return new Response(
+        JSON.stringify({ error: 'Too many OTP requests. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: lastOtp } = await supabase
+      .from('otp_codes')
+      .select('created_at')
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
+      .eq('otp_type', 'signin')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lastOtp && new Date().getTime() - new Date(lastOtp.created_at).getTime() < 60 * 1000) {
+      return new Response(
+        JSON.stringify({ error: 'Please wait at least 60 seconds before requesting another OTP.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Hash password
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -134,19 +168,18 @@ Deno.serve(async (req) => {
       `Your login OTP is: ${otpCode}. Valid for 10 minutes.`
     );
 
-    console.log(`[SIGNIN OTP for ${fullNumber}]: ${otpCode}`);
-
     return new Response(
       JSON.stringify({
         message: smsResult.success 
           ? 'OTP sent to your mobile number' 
-          : 'OTP generated (SMS service not configured)',
+          : 'SMS service not configured. Please contact support.',
         mobileNumber: user.mobile_number,
         countryCode: user.country_code,
         requiresOtp: true,
-        otp: otpCode, // For testing - remove in production
         smsSent: smsResult.success,
       }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

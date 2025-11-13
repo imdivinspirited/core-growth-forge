@@ -29,3 +29,9 @@ verify_jwt = false
 
 [functions.auth-reset-password]
 verify_jwt = false
+
+[functions.twofactor-generate]
+verify_jwt = false
+
+[functions.twofactor-verify]
+verify_jwt = false

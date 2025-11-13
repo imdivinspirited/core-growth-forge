@@ -25,7 +25,6 @@ export default function Auth() {
   const [otpType, setOtpType] = useState<'signup' | 'signin' | 'password_reset'>('signup');
   const [currentMobile, setCurrentMobile] = useState("");
   const [currentCountryCode, setCurrentCountryCode] = useState("+1");
-  const [currentOtp, setCurrentOtp] = useState("");
   const customAuth = useCustomAuth();
   const oAuth = useAuth();
   const navigate = useNavigate();
@@ -73,7 +72,6 @@ export default function Auth() {
       setOtpType('signup');
       setCurrentMobile(signUpData.mobileNumber);
       setCurrentCountryCode(signUpData.countryCode);
-      setCurrentOtp(otp || '');
     }
   };
 
@@ -112,7 +110,6 @@ export default function Auth() {
       setOtpType('signin');
       setCurrentMobile(signInData.mobileNumber);
       setCurrentCountryCode(signInData.countryCode);
-      setCurrentOtp(otp || '');
     }
   };
 
@@ -150,7 +147,6 @@ export default function Auth() {
       setOtpType('password_reset');
       setCurrentMobile(forgotData.mobileNumber);
       setCurrentCountryCode(forgotData.countryCode);
-      setCurrentOtp(otp || '');
     }
   };
 
@@ -230,12 +226,6 @@ export default function Auth() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <Alert className="bg-primary/10 border-primary">
-                <Key className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  <strong>Your OTP:</strong> <span className="font-mono text-lg">{currentOtp}</span>
-                </AlertDescription>
-              </Alert>
               <div className="space-y-2">
                 <Label htmlFor="otp">OTP Code</Label>
                 <Input

@@ -80,13 +80,39 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('custom_users')
-      .select('id')
+    // Rate limiting: max 5 OTPs per hour and 1 per 60 seconds per mobile for signup
+    const ONE_HOUR_AGO = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: hourCount } = await supabase
+      .from('otp_codes')
+      .select('id', { count: 'exact', head: true })
       .eq('mobile_number', mobileNumber)
       .eq('country_code', countryCode)
+      .eq('otp_type', 'signup')
+      .gte('created_at', ONE_HOUR_AGO);
+
+    if ((hourCount || 0) >= 5) {
+      return new Response(
+        JSON.stringify({ error: 'Too many OTP requests. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: lastOtp } = await supabase
+      .from('otp_codes')
+      .select('created_at')
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
+      .eq('otp_type', 'signup')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
+
+    if (lastOtp && new Date().getTime() - new Date(lastOtp.created_at).getTime() < 60 * 1000) {
+      return new Response(
+        JSON.stringify({ error: 'Please wait at least 60 seconds before requesting another OTP.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (existingUser) {
       return new Response(
@@ -151,19 +177,18 @@ Deno.serve(async (req) => {
       `Welcome! Your verification OTP is: ${otpCode}. Valid for 10 minutes.`
     );
 
-    console.log(`[SIGNUP OTP for ${fullNumber}]: ${otpCode}`);
-
     return new Response(
       JSON.stringify({
         message: smsResult.success 
           ? 'User created successfully. OTP sent to your mobile.' 
-          : 'User created. OTP generated (SMS service not configured)',
+          : 'User created. SMS service not configured. Please contact support.',
         mobileNumber: newUser.mobile_number,
         countryCode: newUser.country_code,
         requiresOtp: true,
-        otp: otpCode, // For testing - remove in production
         smsSent: smsResult.success,
       }),
+      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

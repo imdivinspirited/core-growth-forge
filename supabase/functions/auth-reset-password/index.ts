@@ -31,6 +31,9 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Optional: get user email for notification
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+
     // Find valid OTP
     const { data: otpRecord, error: otpError } = await supabase
       .from('otp_codes')
@@ -86,6 +89,32 @@ Deno.serve(async (req) => {
       .from('user_sessions')
       .delete()
       .eq('user_id', otpRecord.user_id);
+
+    // Send security email notification if email available
+    if (resendApiKey) {
+      const { data: userData } = await supabase
+        .from('custom_users')
+        .select('email, full_name')
+        .eq('id', otpRecord.user_id)
+        .maybeSingle();
+
+      if (userData?.email) {
+        try {
+          const { Resend } = await import('npm:resend@4.0.0');
+          const resend = new Resend(resendApiKey);
+          await resend.emails.send({
+            from: 'Security <no-reply@resend.dev>',
+            to: [userData.email],
+            subject: 'Your password was changed',
+            html: `<p>Hello${userData.full_name ? ' ' + userData.full_name : ''},</p>
+                   <p>Your password was just changed. If this wasn't you, please reset your password immediately and contact support.</p>
+                   <p>Time: ${new Date().toISOString()}</p>`
+          });
+        } catch (e) {
+          console.error('Failed to send security email', e);
+        }
+      }
+    }
 
     return new Response(
       JSON.stringify({
