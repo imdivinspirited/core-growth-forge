@@ -22,12 +22,9 @@ const Navbar = () => {
 
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Tourism", href: "/tourism" },
-    { label: "Chat", href: "/chat" },
-    { label: "Profile", href: "/profile" },
-    { label: "SkillSpace", href: "/skillspace" },
-    { label: "ThinkSpace", href: "/thinkspace" },
-    { label: "Workshop", href: "/workshop" },
+    { label: "Courses", href: "/courses" },
+    { label: "Services", href: "/services" },
+    { label: "Dashboard", href: "/dashboard" },
   ];
 
   const handleSignOut = async () => {
@@ -54,7 +51,7 @@ const Navbar = () => {
             <div className="bg-hero-gradient p-2 rounded-lg">
               <User className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">BrandSpace</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">AuraUp</span>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -87,7 +84,6 @@ const Navbar = () => {
             transition={{ delay: 0.3 }}
           >
             <GlobalSearch />
-            <DarkModeToggle />
             {user ? (
               <>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

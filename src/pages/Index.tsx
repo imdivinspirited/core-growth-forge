@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { AnimatedSection } from "@/components/animations/AnimatedSection";
-import HeroBanner from "@/components/home/HeroBanner";
+import HeroSection from "@/components/home/HeroSection";
 import FeaturedContent from "@/components/home/FeaturedContent";
 import PortfolioSnapshot from "@/components/home/PortfolioSnapshot";
 import QuickAccessTools from "@/components/home/QuickAccessTools";
@@ -27,7 +27,7 @@ const Index = () => {
             
             <main>
               <PageTransition>
-                <HeroBanner />
+                <HeroSection />
                 <AnimatedSection delay={0.1}>
                   <FeaturedContent />
                 </AnimatedSection>
@@ -64,9 +64,9 @@ const Index = () => {
             <div className="grid md:grid-cols-4 gap-8">
               <AnimatedSection delay={0.1}>
                 <div>
-                  <h3 className="text-xl font-bold mb-4">BrandSpace</h3>
+                  <h3 className="text-xl font-bold mb-4">AuraUp</h3>
                   <p className="text-white/80 text-sm">
-                    Empowering professionals to build their personal brand and advance their careers.
+                    Empowering individuals to elevate their skills and transform their careers through innovative learning experiences.
                   </p>
                 </div>
               </AnimatedSection>
@@ -104,11 +104,11 @@ const Index = () => {
                 </div>
               </AnimatedSection>
             </div>
-            <AnimatedSection delay={0.5}>
-              <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
-                <p>&copy; 2024 BrandSpace. All rights reserved.</p>
-              </div>
-            </AnimatedSection>
+              <AnimatedSection delay={0.5}>
+                <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
+                  <p>&copy; 2024 AuraUp. All rights reserved.</p>
+                </div>
+              </AnimatedSection>
           </div>
         </footer>
       </AnimatedSection>
