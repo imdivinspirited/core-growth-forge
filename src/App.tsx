@@ -9,11 +9,18 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatePresence } from "framer-motion";
 import { Preloader } from "@/components/animations/Preloader";
-import { useLenis } from "@/hooks/useLenis";
 import { useEffect } from "react";
 import { updateSEO, defaultSEO } from "@/lib/seo";
+import gsap from "gsap";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import Courses from "./pages/Courses";
+import Services from "./pages/Services";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import SkillSpace from "./pages/SkillSpace";
@@ -32,8 +39,18 @@ const queryClient = new QueryClient();
 const AnimatedRoutes = () => {
   const location = useLocation();
   
-  // Initialize Lenis smooth scrolling
-  useLenis();
+  // Initialize GSAP ScrollSmoother
+  useEffect(() => {
+    const smoother = ScrollSmoother.create({
+      smooth: 1.5,
+      effects: true,
+      smoothTouch: 0.1,
+    });
+
+    return () => {
+      smoother?.kill();
+    };
+  }, []);
   
   // Update SEO on route change
   useEffect(() => {
@@ -45,6 +62,9 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
         <Route path="/skillspace" element={<ProtectedRoute><SkillSpace /></ProtectedRoute>} />

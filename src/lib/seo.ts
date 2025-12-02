@@ -61,8 +61,8 @@ export const updateSEO = (config: SEOConfig) => {
 };
 
 export const defaultSEO: SEOConfig = {
-  title: 'ovaboe.dev - Professional Development Platform',
-  description: 'A comprehensive platform for students, professionals, and learners to enhance their skills, collaborate, and grow their careers.',
-  keywords: ['development', 'learning', 'collaboration', 'professional growth', 'education'],
+  title: 'AuraUp - Elevate Your Skills, Transform Your Career',
+  description: 'Elevate your skills with expert-led courses, interactive learning experiences, and personalized mentorship to unlock your full potential.',
+  keywords: ['online learning', 'skill development', 'career growth', 'professional development', 'courses', 'training', 'education', 'mentorship'],
   ogImage: '/og-image.png',
 };
