@@ -1,154 +1,178 @@
-# OvaBoe App - Custom Authentication System
+# AuraUp - Professional Development Platform
 
-A comprehensive authentication system built with custom mobile number verification, OAuth integration, 2FA, rate limiting, and session management.
+A comprehensive professional development and personal branding platform built with React, TypeScript, Supabase, and modern web technologies.
 
-## 🚀 Features
+## 🚀 Overview
 
-### 🔐 Authentication Methods
+AuraUp is a full-stack professional development platform featuring:
+- **Custom Authentication System** - Mobile-first with OTP, OAuth, and 2FA
+- **Dashboard** - Centralized hub for profile, progress, badges, and achievements
+- **Courses** - Interactive learning with progress tracking
+- **Services** - Professional service offerings
+- **Modern UI** - GSAP animations, Three.js effects, responsive design
 
+## ✨ Key Features
+
+### 🏠 Home Page
+- Hero section with GSAP ScrollSmoother and Three.js 3D effects
+- Smooth scrolling with professional animations
+- Featured content and announcements
+- Quick access tools and trending content
+
+### 📚 Courses
+- Interactive course catalog
+- Progress tracking
+- Lesson management
+- Difficulty-based filtering
+
+### 💼 Services
+- Professional service offerings
+- Booking management
+- Vendor integration
+
+### 📊 Dashboard
+Centralized hub including:
+- **Profile** - Personal information management
+- **Progress** - Learning progress visualization
+- **Badges** - Achievement badges and certifications
+- **Certificates** - Earned certificates display
+- **Statistics** - LeetCode-style progress graphs
+- **Achievements** - Milestone tracking
+- **Social Share** - LinkedIn integration
+
+### ⚙️ Settings
+- **Appearance** - Dark/Light mode toggle (persistent)
+- **Preferences** - Notification and language settings
+- **Account** - Account management
+- **Security** - Two-Factor Authentication setup
+
+### 🔐 Authentication System
+
+#### Authentication Methods
 1. **Mobile Number Authentication**
-   - Sign up with mobile number and password
+   - Sign up/sign in with mobile number and password
    - Real-time OTP verification via SMS (Twilio)
    - Secure password hashing (SHA-256)
-   - Multi-country support with country codes
-   - **Rate limiting**: Max 5 OTP requests/hour, 1/minute per mobile
+   - Rate limiting: 5 OTP/hour, 1/minute per mobile
 
 2. **OAuth Integration**
    - Google Sign-In
    - GitHub Sign-In
    - Facebook Sign-In
 
-3. **Password Management**
-   - Forgot password flow with OTP
-   - Secure password reset
-   - Session invalidation on password change
-   - Email notifications for password changes
-
-4. **Two-Factor Authentication (2FA)**
+3. **Two-Factor Authentication (2FA)**
    - TOTP-based (Google Authenticator, Authy, etc.)
    - QR code setup
    - Recovery codes (10 per activation)
    - Sign-in challenge for 2FA users
-   - Email notification on 2FA enable
 
-### 📱 Real-Time SMS OTP Delivery
+#### Security Features
+- Password security with SHA-256 hashing
+- Rate limiting to prevent brute force
+- JWT-like session tokens with refresh
+- Row-Level Security (RLS) policies
+- Email notifications for security events
+- Audit logging
 
-- Live SMS delivery via **Twilio**
-- 6-digit OTP codes
-- 10-minute expiration
-- Automatic cleanup of expired OTPs
-- Rate limiting to prevent abuse
-
-### 🔔 Security Email Notifications
-
-Powered by **Resend API**:
+### 🔔 Notifications
+- Email alerts via **Resend API**
 - New device sign-in alerts
 - Password change confirmations
 - 2FA activation notifications
 
-### 👤 User Profile Management
-
-- View and edit personal information
-- Mobile number verification status
-- Account status tracking
+### 🔧 Admin Features
+- Admin Auth Center (`/admin/auth-center`)
 - Session management
+- User role management
+- Audit log viewing
 
-### 🛡️ Security Features
+## 🎨 Design System
 
-1. **Password Security**
-   - Minimum 8 characters required
-   - SHA-256 hashing
-   - Secure storage
-   - No plain text credentials
+### Color Palette
+- Modern, clean palette with HSL colors
+- Full dark mode support
+- Semantic tokens for consistency
+- Glass effects and gradients
 
-2. **Rate Limiting**
-   - OTP requests: 5/hour, 1/minute per mobile
-   - Prevents brute force attacks
-   - Applies to signup, signin, password reset
+### Animations
+- GSAP ScrollSmoother for smooth scrolling
+- Framer Motion for component animations
+- Three.js for 3D effects
+- Respects `prefers-reduced-motion`
 
-3. **Session Management**
-   - JWT-like session tokens
-   - Refresh tokens
-   - 7-day session expiration
-   - IP address and user agent tracking
-   - Automatic session cleanup
-   - New device detection
+### Navigation
+- Fixed navbar with show/hide toggle
+- Persistent visibility preference
+- Mobile-responsive menu
+- Global search functionality
 
-4. **Two-Factor Authentication**
-   - TOTP verification (RFC 6238)
-   - Recovery codes (hashed storage)
-   - Last verified timestamp tracking
-   - Secure 2FA disable flow
+## 🛠️ Tech Stack
 
-5. **Row-Level Security (RLS)**
-   - User data isolation
-   - Role-based access control
-   - Admin privileges for management
-   - Locked-down 2FA tables
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **GSAP** - Advanced animations
+- **Three.js** - 3D graphics
+- **React Router** - Navigation
+- **TanStack Query** - Data fetching
+- **Shadcn/ui** - Component library
 
-### 🔧 Admin Auth Center
+### Backend
+- **Supabase** - Backend as a Service
+- **Edge Functions** - Serverless functions (Deno)
+- **PostgreSQL** - Database
+- **Row-Level Security** - Data protection
 
-Accessible at `/admin/auth-center`:
-- View all active user sessions
-- Revoke sessions
-- Manage user roles (user, moderator, admin)
-- View audit logs
-- Monitor authentication events
+### External Services
+- **Twilio** - SMS OTP delivery
+- **Resend** - Email notifications
 
-### 🗄️ Database Schema
+## 📦 Installation
 
-#### Tables
+```bash
+# Clone the repository
+git clone <repository-url>
+cd auraup
 
-1. **custom_users** - User accounts
-2. **otp_codes** - OTP storage and validation
-3. **user_sessions** - Active session tracking
-4. **user_roles** - Role assignment
-5. **profiles** - OAuth user profiles
-6. **two_factor_settings** - 2FA configuration
-7. **two_factor_recovery_codes** - Recovery code hashes
-8. **audit_logs** - Security event tracking
+# Install dependencies
+npm install
 
-## 🛠️ Setup
+# Start development server
+npm run dev
+```
 
-### Prerequisites
+## ⚙️ Configuration
 
-- Supabase project
-- Twilio account (for SMS)
-- Resend account (for email)
-- OAuth credentials (Google, GitHub, Facebook)
+### Environment Variables
 
-### 1. Twilio Setup (SMS OTP)
+Create a `.env` file with:
 
-1. Sign up at [twilio.com](https://www.twilio.com/)
-2. Get a phone number
-3. Navigate to Console → Account Info
-4. Copy your credentials
-5. Add secrets in Supabase Dashboard:
-   ```
-   TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxx
-   TWILIO_AUTH_TOKEN=your_auth_token
-   TWILIO_PHONE_NUMBER=+1234567890
-   ```
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-### 2. Resend Setup (Email Notifications)
+### Supabase Secrets
 
-1. Sign up at [resend.com](https://resend.com/)
-2. Verify your domain at [resend.com/domains](https://resend.com/domains)
-3. Create API key at [resend.com/api-keys](https://resend.com/api-keys)
-4. Add secret in Supabase:
-   ```
-   RESEND_API_KEY=re_xxxxxxxxxxxx
-   ```
+Add the following secrets in Supabase Dashboard:
 
-### 3. OAuth Configuration
+```
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_NUMBER=+1234567890
+RESEND_API_KEY=re_xxxxxxxxxxxx
+```
+
+### OAuth Setup
 
 #### Google
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a project
-3. Configure OAuth consent screen
-4. Add authorized domains: `<PROJECT_ID>.supabase.co`
-5. Add callback URL from Supabase Dashboard
-6. Configure in Supabase: Settings → Auth → Providers → Google
+1. Create project at [Google Cloud Console](https://console.cloud.google.com/)
+2. Configure OAuth consent screen
+3. Add callback URL from Supabase Dashboard
+4. Configure in Supabase: Settings → Auth → Providers → Google
 
 #### GitHub
 1. Go to GitHub Settings → Developer Settings → OAuth Apps
@@ -159,286 +183,170 @@ Accessible at `/admin/auth-center`:
 #### Facebook
 1. Create app at [Facebook Developers](https://developers.facebook.com/)
 2. Add Facebook Login product
-3. Set OAuth redirect URI from Supabase Dashboard
+3. Set OAuth redirect URI
 4. Configure in Supabase: Settings → Auth → Providers → Facebook
 
-### 4. Database Setup
+## 📁 Project Structure
 
-The database migrations automatically create:
-- All required tables
-- RLS policies
-- Database functions
-- Triggers for maintenance
-- 2FA infrastructure
+```
+/
+├── public/                  # Static assets
+├── src/
+│   ├── assets/             # Images, fonts
+│   ├── components/
+│   │   ├── animations/     # Animation components
+│   │   ├── auth/           # Auth components
+│   │   ├── dashboard/      # Dashboard components
+│   │   ├── home/           # Home page components
+│   │   ├── layout/         # Layout components (Navbar, Sidebar)
+│   │   ├── profile/        # Profile components
+│   │   ├── search/         # Search components
+│   │   ├── settings/       # Settings components
+│   │   ├── skillspace/     # Learning components
+│   │   ├── thinkspace/     # Blog components
+│   │   ├── ui/             # UI components (Shadcn)
+│   │   └── workshop/       # Workshop components
+│   ├── hooks/              # Custom React hooks
+│   ├── integrations/       # Third-party integrations
+│   ├── lib/                # Utility functions
+│   └── pages/              # Page components
+├── supabase/
+│   ├── functions/          # Edge functions
+│   │   ├── auth-signup/
+│   │   ├── auth-signin/
+│   │   ├── auth-verify-otp/
+│   │   ├── auth-forgot-password/
+│   │   ├── auth-reset-password/
+│   │   ├── auth-session/
+│   │   ├── auth-signout/
+│   │   ├── twofactor-generate/
+│   │   ├── twofactor-verify/
+│   │   ├── twofactor-signin/
+│   │   ├── twofactor-disable/
+│   │   ├── send-security-alert/
+│   │   └── send-notification/
+│   └── migrations/         # Database migrations
+└── index.html
+```
 
-## 📡 API Endpoints (Edge Functions)
+## 📡 API Endpoints
 
 ### Authentication
-- `POST /auth-signup` - Create new user account
-- `POST /auth-signin` - Sign in with credentials
-- `POST /auth-verify-otp` - Verify OTP code
-- `POST /auth-session` - Validate session token
-- `POST /auth-signout` - End user session
-- `POST /auth-forgot-password` - Request password reset
-- `POST /auth-reset-password` - Reset password with OTP
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth-signup` | POST | Create new user account |
+| `/auth-signin` | POST | Sign in with credentials |
+| `/auth-verify-otp` | POST | Verify OTP code |
+| `/auth-session` | POST | Validate session token |
+| `/auth-signout` | POST | End user session |
+| `/auth-forgot-password` | POST | Request password reset |
+| `/auth-reset-password` | POST | Reset password with OTP |
 
 ### Two-Factor Authentication
-- `POST /twofactor-generate` - Generate 2FA secret & QR
-- `POST /twofactor-verify` - Verify TOTP & enable 2FA
-- `POST /twofactor-signin` - Verify 2FA during sign-in
-- `POST /twofactor-disable` - Disable 2FA
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/twofactor-generate` | POST | Generate 2FA secret & QR |
+| `/twofactor-verify` | POST | Verify TOTP & enable 2FA |
+| `/twofactor-signin` | POST | Verify 2FA during sign-in |
+| `/twofactor-disable` | POST | Disable 2FA |
 
-### Security
-- `POST /send-security-alert` - Send email notifications
+## 🗄️ Database Schema
 
-## 📖 Usage
+### Core Tables
+- **custom_users** - User accounts
+- **profiles** - User profiles
+- **user_sessions** - Active sessions
+- **user_roles** - Role assignments
+- **otp_codes** - OTP storage
+- **two_factor_settings** - 2FA configuration
+- **two_factor_recovery_codes** - Recovery codes
+- **audit_logs** - Security events
 
-### Sign Up Flow
+### Content Tables
+- **courses** - Course catalog
+- **lessons** - Course lessons
+- **user_progress** - Learning progress
+- **blogs** - Blog posts
+- **community_posts** - Community content
+- **bookmarks** - User bookmarks
 
-```typescript
-// 1. User provides mobile number and password
-const { error, requiresOtp } = await signUp(
-  mobileNumber,
-  countryCode,
-  password,
-  fullName
-);
+### Business Tables
+- **vendors** - Service vendors
+- **bookings** - Service bookings
+- **payments** - Payment records
+- **notifications** - User notifications
 
-// 2. User receives OTP via SMS (no OTP in response for security)
-// 3. User enters OTP to verify
-const { error } = await verifyOtp(
-  mobileNumber,
-  countryCode,
-  otpCode,
-  'signup'
-);
+## 🔒 Security
+
+### Implemented Measures
+- ✅ SHA-256 password hashing
+- ✅ OTP verification for sensitive operations
+- ✅ Rate limiting (5 OTP/hour, 1/minute)
+- ✅ JWT-like session tokens
+- ✅ Row-Level Security (RLS)
+- ✅ Two-Factor Authentication
+- ✅ Email security alerts
+- ✅ Audit logging
+
+### Production Recommendations
+- Use HTTPS only
+- Monitor failed auth attempts
+- Set up SMS/email monitoring
+- Configure SPF/DKIM/DMARC
+- Regular audit log reviews
+
+## 🧪 Development
+
+### Available Scripts
+
+```bash
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
 ```
 
-### Sign In Flow (with 2FA)
+### Testing
+- Unit tests in `/testing/unit`
+- Integration tests in `/testing/integration`
+- E2E tests in `/testing/e2e`
 
-```typescript
-// 1. User provides credentials
-const { error, requiresOtp } = await signIn(
-  mobileNumber,
-  countryCode,
-  password
-);
+## 📈 Performance
 
-// 2. User receives OTP via SMS
-// 3. User enters OTP
-const { error, requires2FA, sessionToken } = await verifyOtp(
-  mobileNumber,
-  countryCode,
-  otpCode,
-  'signin'
-);
+### Optimization Targets
+- Lighthouse score: 90+ all categories
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3s
+- Cumulative Layout Shift: < 0.1
 
-// 4. If 2FA enabled, verify TOTP
-if (requires2FA) {
-  const { user, session } = await verify2FASignin(
-    sessionToken,
-    totpCode,
-    false // or true for recovery code
-  );
-}
+### Implemented Optimizations
+- Code splitting
+- Lazy loading for routes
+- Image optimization
+- Font preloading
+- Minified assets
+- Tree shaking
+
+## 🌐 Deployment
+
+### Production Build
+```bash
+npm run build
 ```
 
-### Enable 2FA
-
-```typescript
-// 1. Generate secret and QR code
-const { otpauth } = await generate2FA(sessionToken);
-// Display QR code to user
-
-// 2. User scans QR and enters code
-const { recoveryCodes } = await verify2FA(sessionToken, totpCode);
-// Save recovery codes securely
-```
-
-### Password Reset Flow
-
-```typescript
-// 1. Request password reset
-const { error } = await forgotPassword(mobileNumber, countryCode);
-
-// 2. User receives OTP via SMS
-// 3. Reset password with OTP
-const { error } = await resetPassword(
-  mobileNumber,
-  countryCode,
-  otpCode,
-  newPassword
-);
-// User receives email confirmation
-```
-
-## 🔒 Security Audit Results
-
-### ✅ Implemented Security Measures
-
-1. **Authentication**
-   - Secure password hashing (SHA-256)
-   - OTP verification for sensitive operations
-   - Session token validation
-   - OAuth integration
-   - 2FA with TOTP
-
-2. **Authorization**
-   - Role-based access control
-   - RLS policies on all tables
-   - Security definer functions for role checks
-   - Admin-only endpoints
-
-3. **Data Protection**
-   - User data isolation
-   - Encrypted session tokens
-   - Secure password storage
-   - No plain text credentials
-   - 2FA secret encryption
-   - Hashed recovery codes
-
-4. **Rate Limiting**
-   - OTP generation: 5/hour, 1/minute
-   - Prevents brute force attacks
-   - Per-mobile-number throttling
-
-5. **Email Notifications**
-   - New device sign-in alerts
-   - Password change confirmations
-   - 2FA activation notices
-
-6. **Session Management**
-   - Automatic expiration
-   - Token refresh mechanism
-   - Session invalidation on password change
-   - Device tracking
-   - New device detection
-
-7. **Input Validation**
-   - Mobile number format validation
-   - Password strength requirements
-   - OTP format validation
-
-### ⚠️ Production Recommendations
-
-1. **HTTPS Only**
-   - Ensure all connections use HTTPS
-   - Set secure cookie flags
-
-2. **Monitoring**
-   - Set up alerts for failed auth attempts
-   - Monitor OTP usage patterns
-   - Track session anomalies
-   - Review audit logs regularly
-
-3. **SMS Configuration**
-   - Monitor SMS delivery rates
-   - Set up SMS templates
-   - Configure fallback options
-
-4. **Email Configuration**
-   - Verify sender domain
-   - Monitor bounce rates
-   - Set up SPF/DKIM/DMARC
-
-5. **2FA Best Practices**
-   - Encourage all users to enable 2FA
-   - Provide clear recovery code instructions
-   - Implement account recovery process
-
-## 🧪 Testing
-
-### Development Mode
-
-- OTPs are logged in edge function console
-- Use `/admin/auth-center` to monitor sessions
-- Test 2FA with authenticator apps
-
-### Test Accounts
-
-Create test accounts in development:
-- Use valid mobile number format (10-15 digits)
-- Password minimum 8 characters
-- OTP verification required
-- Test 2FA flow with Google Authenticator
-
-## 🔧 Maintenance
-
-### Automatic Cleanup
-
-Database functions run periodically:
-- `clean_expired_otps()` - Removes expired OTPs
-- `clean_expired_sessions()` - Removes expired sessions
-
-### Manual Operations
-
-Admin functions for:
-- User management
-- Role assignment
-- Session monitoring
-- Audit log review
-- 2FA management
-
-## 🏗️ Architecture
-
-```
-┌─────────────┐
-│   Frontend  │
-│  (React)    │
-└──────┬──────┘
-       │
-       ├── Custom Auth ──────┐
-       │                     │
-       ├── OAuth ────────────┤
-       │                     │
-       ├── 2FA ──────────────┤
-       │                     │
-       v                     v
-┌──────────────────────────────┐
-│   Supabase Edge Functions    │
-├──────────────────────────────┤
-│  - auth-signup               │
-│  - auth-signin               │
-│  - auth-verify-otp           │
-│  - auth-forgot-password      │
-│  - auth-reset-password       │
-│  - twofactor-generate        │
-│  - twofactor-verify          │
-│  - twofactor-signin          │
-│  - twofactor-disable         │
-│  - send-security-alert       │
-└──────────┬───────────────────┘
-           │
-           v
-┌──────────────────────────────┐
-│   Supabase Database          │
-├──────────────────────────────┤
-│  - custom_users              │
-│  - otp_codes                 │
-│  - user_sessions             │
-│  - user_roles                │
-│  - profiles                  │
-│  - two_factor_settings       │
-│  - two_factor_recovery_codes │
-│  - audit_logs                │
-└──────────┬───────────────────┘
-           │
-           └──── RLS Policies
-
-External Services:
-├── Twilio (SMS OTP)
-└── Resend (Email Notifications)
-```
-
-## 💻 Tech Stack
-
-- **Frontend**: React + TypeScript
-- **Backend**: Supabase Edge Functions (Deno)
-- **Database**: PostgreSQL (Supabase)
-- **SMS**: Twilio
-- **Email**: Resend
-- **Auth**: Custom + Supabase Auth (OAuth)
-- **2FA**: otplib (TOTP RFC 6238)
+### Environment Requirements
+- Node.js 18+
+- npm 9+
 
 ## 📄 License
 
@@ -446,11 +354,13 @@ MIT
 
 ## 🆘 Support
 
-For issues or questions, please contact support.
+For issues or questions, please open an issue on the repository.
 
-## 📚 Additional Resources
+## 🔗 Resources
 
 - [Supabase Documentation](https://supabase.com/docs)
-- [Twilio API Reference](https://www.twilio.com/docs/usage/api)
+- [Twilio API Reference](https://www.twilio.com/docs)
 - [Resend Documentation](https://resend.com/docs)
-- [RFC 6238 (TOTP)](https://datatracker.ietf.org/doc/html/rfc6238)
+- [GSAP Documentation](https://gsap.com/docs)
+- [Three.js Documentation](https://threejs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
