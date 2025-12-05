@@ -134,7 +134,7 @@ const Courses = () => {
                       </div>
                       <Button 
                         className="w-full" 
-                        onClick={() => navigate('/skillspace')}
+                        onClick={() => navigate('/learn')}
                       >
                         Start Learning
                         <ChevronRight className="w-4 h-4 ml-2" />

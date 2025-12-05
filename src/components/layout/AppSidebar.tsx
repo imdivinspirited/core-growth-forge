@@ -50,23 +50,23 @@ const mainNavItems = [
     badge: "new"
   },
   { 
-    title: "Profile", 
-    href: "/profile", 
+    title: "Dashboard", 
+    href: "/dashboard", 
     icon: User,
     subItems: [
-      { title: "My Profile", href: "/profile", icon: User },
-      { title: "Portfolio", href: "/profile#portfolio", icon: FileText },
-      { title: "Achievements", href: "/profile#achievements", icon: Award }
+      { title: "Overview", href: "/dashboard", icon: User },
+      { title: "Profile", href: "/dashboard#profile", icon: FileText },
+      { title: "Achievements", href: "/dashboard#achievements", icon: Award }
     ]
   },
   { 
-    title: "SkillSpace", 
-    href: "/skillspace", 
+    title: "AuraLearn", 
+    href: "/learn", 
     icon: BookOpen,
     subItems: [
-      { title: "All Courses", href: "/skillspace", icon: GraduationCap },
-      { title: "My Progress", href: "/skillspace#progress", icon: FileText },
-      { title: "Certificates", href: "/skillspace#certificates", icon: Award }
+      { title: "All Courses", href: "/learn", icon: GraduationCap },
+      { title: "My Progress", href: "/learn#progress", icon: FileText },
+      { title: "Certificates", href: "/learn#certificates", icon: Award }
     ]
   },
   { 
@@ -144,7 +144,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-sidebar-foreground">BrandSpace</span>
+              <span className="text-lg font-bold text-sidebar-foreground">AuraUp</span>
               <span className="text-xs text-sidebar-foreground/60">Professional Platform</span>
             </div>
           )}

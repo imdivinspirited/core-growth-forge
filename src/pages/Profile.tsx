@@ -319,7 +319,7 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-8">
-            {/* SkillSpace Progress Integration */}
+            {/* AuraLearn Progress Integration */}
             <div className="grid md:grid-cols-2 gap-8">
               <Card>
                 <CardHeader>

@@ -8,7 +8,8 @@ AuraUp is a full-stack professional development platform featuring:
 - **Custom Authentication System** - Mobile-first with OTP, OAuth, and 2FA
 - **Dashboard** - Centralized hub for profile, progress, badges, and achievements
 - **Courses** - Interactive learning with progress tracking
-- **Services** - Professional service offerings
+- **AuraLearn** - Skill development and coding challenges
+- **ThinkSpace** - Blogging and community engagement
 - **Modern UI** - GSAP animations, Three.js effects, responsive design
 
 ## ✨ Key Features
@@ -18,17 +19,6 @@ AuraUp is a full-stack professional development platform featuring:
 - Smooth scrolling with professional animations
 - Featured content and announcements
 - Quick access tools and trending content
-
-### 📚 Courses
-- Interactive course catalog
-- Progress tracking
-- Lesson management
-- Difficulty-based filtering
-
-### 💼 Services
-- Professional service offerings
-- Booking management
-- Vendor integration
 
 ### 📊 Dashboard
 Centralized hub including:
@@ -40,11 +30,35 @@ Centralized hub including:
 - **Achievements** - Milestone tracking
 - **Social Share** - LinkedIn integration
 
+### 📚 AuraLearn (Learning Hub)
+- Interactive course catalog
+- Progress tracking
+- Coding exercises and challenges
+- Lesson management
+- Certificates upon completion
+
+### 📝 ThinkSpace (Blog & Community)
+- Blog posts and articles
+- Community discussions
+- Bookmarking system
+- Multi-language support
+
+### 💼 Services
+- Professional service offerings
+- Booking management
+- Vendor integration
+
 ### ⚙️ Settings
-- **Appearance** - Dark/Light mode toggle (persistent)
+- **Appearance** - Dark/Light mode toggle (persistent via localStorage)
 - **Preferences** - Notification and language settings
 - **Account** - Account management
 - **Security** - Two-Factor Authentication setup
+
+### 🧭 Navigation
+- **Fixed navbar** with show/hide toggle button
+- Persistent visibility preference
+- Mobile-responsive menu
+- Global search functionality (⌘K / Ctrl+K)
 
 ### 🔐 Authentication System
 
@@ -90,7 +104,7 @@ Centralized hub including:
 
 ### Color Palette
 - Modern, clean palette with HSL colors
-- Full dark mode support
+- Full dark mode support (persistent)
 - Semantic tokens for consistency
 - Glass effects and gradients
 
@@ -100,12 +114,6 @@ Centralized hub including:
 - Three.js for 3D effects
 - Respects `prefers-reduced-motion`
 
-### Navigation
-- Fixed navbar with show/hide toggle
-- Persistent visibility preference
-- Mobile-responsive menu
-- Global search functionality
-
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -114,8 +122,8 @@ Centralized hub including:
 - **Vite** - Build tool
 - **Tailwind CSS** - Styling
 - **Framer Motion** - Animations
-- **GSAP** - Advanced animations
-- **Three.js** - 3D graphics
+- **GSAP** - Advanced animations & ScrollSmoother
+- **Three.js / React Three Fiber** - 3D graphics
 - **React Router** - Navigation
 - **TanStack Query** - Data fetching
 - **Shadcn/ui** - Component library
@@ -180,12 +188,6 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 3. Set callback URL from Supabase Dashboard
 4. Configure in Supabase: Settings → Auth → Providers → GitHub
 
-#### Facebook
-1. Create app at [Facebook Developers](https://developers.facebook.com/)
-2. Add Facebook Login product
-3. Set OAuth redirect URI
-4. Configure in Supabase: Settings → Auth → Providers → Facebook
-
 ## 📁 Project Structure
 
 ```
@@ -200,9 +202,9 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 │   │   ├── home/           # Home page components
 │   │   ├── layout/         # Layout components (Navbar, Sidebar)
 │   │   ├── profile/        # Profile components
-│   │   ├── search/         # Search components
+│   │   ├── search/         # Global search
 │   │   ├── settings/       # Settings components
-│   │   ├── skillspace/     # Learning components
+│   │   ├── skillspace/     # Learning components (AuraLearn)
 │   │   ├── thinkspace/     # Blog components
 │   │   ├── ui/             # UI components (Shadcn)
 │   │   └── workshop/       # Workshop components
@@ -212,19 +214,6 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 │   └── pages/              # Page components
 ├── supabase/
 │   ├── functions/          # Edge functions
-│   │   ├── auth-signup/
-│   │   ├── auth-signin/
-│   │   ├── auth-verify-otp/
-│   │   ├── auth-forgot-password/
-│   │   ├── auth-reset-password/
-│   │   ├── auth-session/
-│   │   ├── auth-signout/
-│   │   ├── twofactor-generate/
-│   │   ├── twofactor-verify/
-│   │   ├── twofactor-signin/
-│   │   ├── twofactor-disable/
-│   │   ├── send-security-alert/
-│   │   └── send-notification/
 │   └── migrations/         # Database migrations
 └── index.html
 ```
@@ -316,11 +305,6 @@ npm run typecheck
 npm run lint
 ```
 
-### Testing
-- Unit tests in `/testing/unit`
-- Integration tests in `/testing/integration`
-- E2E tests in `/testing/e2e`
-
 ## 📈 Performance
 
 ### Optimization Targets
@@ -331,11 +315,11 @@ npm run lint
 
 ### Implemented Optimizations
 - Code splitting
-- Lazy loading for routes
 - Image optimization
 - Font preloading
 - Minified assets
 - Tree shaking
+- GSAP ScrollSmoother for smooth scrolling
 
 ## 🌐 Deployment
 

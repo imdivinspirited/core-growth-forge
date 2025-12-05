@@ -27,7 +27,7 @@ import CodingPanel from "@/components/skillspace/CodingPanel";
 import ProgressTracker from "@/components/skillspace/ProgressTracker";
 import CourseSidebar from "@/components/skillspace/CourseSidebar";
 
-const SkillSpace = () => {
+const AuraLearn = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -128,7 +128,7 @@ const SkillSpace = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading SkillSpace...</p>
+          <p className="text-muted-foreground">Loading AuraLearn...</p>
         </div>
       </div>
     );
@@ -149,7 +149,7 @@ const SkillSpace = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              SkillSpace
+              AuraLearn
             </h1>
             <p className="text-xl text-muted-foreground mb-6">
               Master new skills with interactive lessons and coding challenges
@@ -368,4 +368,4 @@ const SkillSpace = () => {
   );
 };
 
-export default SkillSpace;
+export default AuraLearn;
