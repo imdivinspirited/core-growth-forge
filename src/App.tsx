@@ -23,7 +23,7 @@ import Courses from "./pages/Courses";
 import Services from "./pages/Services";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
-import SkillSpace from "./pages/SkillSpace";
+import AuraLearn from "./pages/AuraLearn";
 import ThinkSpace from "./pages/ThinkSpace";
 import Workshop from "./pages/Workshop";
 import Settings from "./pages/Settings";
@@ -67,7 +67,7 @@ const AnimatedRoutes = () => {
         <Route path="/services" element={<Services />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-        <Route path="/skillspace" element={<ProtectedRoute><SkillSpace /></ProtectedRoute>} />
+        <Route path="/learn" element={<ProtectedRoute><AuraLearn /></ProtectedRoute>} />
         <Route path="/thinkspace" element={<ProtectedRoute><ThinkSpace /></ProtectedRoute>} />
         <Route path="/thinkspace/write" element={<ProtectedRoute><BlogWriter /></ProtectedRoute>} />
         <Route path="/workshop" element={<ProtectedRoute><Workshop /></ProtectedRoute>} />
@@ -85,7 +85,7 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="ovaboe-theme">
+    <ThemeProvider defaultTheme="system" storageKey="auraup-theme">
       <AuthProvider>
         <CustomAuthProvider>
           <TooltipProvider>

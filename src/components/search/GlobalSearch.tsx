@@ -114,7 +114,7 @@ export const GlobalSearch = () => {
             title: c.title,
             description: c.description || '',
             category: c.category,
-            url: `/skillspace?course=${c.id}`,
+            url: `/learn?course=${c.id}`,
           })),
           ...(posts || []).map(p => ({
             type: 'community' as const,

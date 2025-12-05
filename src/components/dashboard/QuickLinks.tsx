@@ -9,8 +9,8 @@ export const QuickLinks = () => {
       title: "Practice Coding",
       description: "Jump into coding exercises",
       icon: Code,
-      link: "/skillspace",
-      color: "bg-blue-500 hover:bg-blue-600"
+      link: "/learn",
+      color: "bg-primary hover:bg-primary/90"
     },
     {
       title: "Read Blogs",
