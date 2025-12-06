@@ -6,9 +6,11 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CustomAuthProvider } from "@/hooks/useCustomAuth";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { DynamicExperienceProvider } from "@/context/DynamicExperienceContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AnimatePresence } from "framer-motion";
 import { Preloader } from "@/components/animations/Preloader";
+import GlobalNavigation from "@/components/layout/GlobalNavigation";
 import { useEffect } from "react";
 import { updateSEO, defaultSEO } from "@/lib/seo";
 import gsap from "gsap";
@@ -86,18 +88,23 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="auraup-theme">
-      <AuthProvider>
-        <CustomAuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Preloader />
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </TooltipProvider>
-        </CustomAuthProvider>
-      </AuthProvider>
+      <DynamicExperienceProvider>
+        <AuthProvider>
+          <CustomAuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Preloader />
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <GlobalNavigation />
+                <div className="main-content">
+                  <AnimatedRoutes />
+                </div>
+              </BrowserRouter>
+            </TooltipProvider>
+          </CustomAuthProvider>
+        </AuthProvider>
+      </DynamicExperienceProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
