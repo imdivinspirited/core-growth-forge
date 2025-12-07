@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
+import { getDynamicText } from '@/lib/dynamicContent';
 
 interface AuraParticle {
   position: THREE.Vector3;
@@ -21,7 +22,6 @@ const AuraEffect = ({ isHovered }: { isHovered: boolean }) => {
   const particleCount = 150;
 
   useEffect(() => {
-    // Initialize particles
     const particles: AuraParticle[] = [];
     for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -53,44 +53,31 @@ const AuraEffect = ({ isHovered }: { isHovered: boolean }) => {
     const time = state.clock.elapsedTime;
     const positions = positionsRef.current;
     const colors = colorsRef.current;
-    
     const speed = isHovered ? 1.5 : 1;
 
     particlesRef.current.forEach((particle, i) => {
-      // Update position
       particle.position.add(particle.velocity.clone().multiplyScalar(speed));
       particle.life += 1;
 
-      // Reset particle if it goes too high or life ends
       if (particle.position.y > 2 || particle.life > particle.maxLife) {
         const angle = Math.random() * Math.PI * 2;
         const radius = 0.3 + Math.random() * 0.7;
-        particle.position.set(
-          Math.cos(angle) * radius,
-          -1,
-          Math.sin(angle) * radius
-        );
+        particle.position.set(Math.cos(angle) * radius, -1, Math.sin(angle) * radius);
         particle.life = 0;
       }
 
-      // Spiral motion
       const spiralAngle = time * 0.5 + i * 0.1;
       particle.position.x += Math.sin(spiralAngle) * 0.005 * speed;
       particle.position.z += Math.cos(spiralAngle) * 0.005 * speed;
 
-      // Set positions
       positions[i * 3] = particle.position.x;
       positions[i * 3 + 1] = particle.position.y;
       positions[i * 3 + 2] = particle.position.z;
 
-      // Color gradient based on height (blue to purple to pink)
       const heightNorm = (particle.position.y + 1) / 3;
-      const lifeNorm = 1 - particle.life / particle.maxLife;
-      const alpha = lifeNorm * (1 - Math.abs(heightNorm - 0.5));
-      
-      colors[i * 3] = 0.4 + heightNorm * 0.4; // R
-      colors[i * 3 + 1] = 0.3 + (1 - heightNorm) * 0.3; // G
-      colors[i * 3 + 2] = 0.9; // B
+      colors[i * 3] = 0.4 + heightNorm * 0.4;
+      colors[i * 3 + 1] = 0.3 + (1 - heightNorm) * 0.3;
+      colors[i * 3 + 2] = 0.9;
     });
 
     meshRef.current.geometry.attributes.position.needsUpdate = true;
@@ -166,33 +153,19 @@ const RisingArrow = ({ isHovered }: { isHovered: boolean }) => {
     <group ref={groupRef}>
       <mesh position={[0, 0.5, 0]}>
         <coneGeometry args={[0.15, 0.3, 4]} />
-        <meshBasicMaterial
-          color={isHovered ? "#22d3ee" : "#06b6d4"}
-          transparent
-          opacity={0.9}
-        />
+        <meshBasicMaterial color={isHovered ? "#22d3ee" : "#06b6d4"} transparent opacity={0.9} />
       </mesh>
       <mesh position={[0, 0.15, 0]}>
         <boxGeometry args={[0.08, 0.4, 0.08]} />
-        <meshBasicMaterial
-          color={isHovered ? "#22d3ee" : "#06b6d4"}
-          transparent
-          opacity={0.9}
-        />
+        <meshBasicMaterial color={isHovered ? "#22d3ee" : "#06b6d4"} transparent opacity={0.9} />
       </mesh>
     </group>
   );
 };
 
-// Fallback static logo
+// Static SVG Fallback
 const StaticLogo = ({ size, className }: { size: number; className?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 40 40"
-    className={className}
-    fill="none"
-  >
+  <svg width={size} height={size} viewBox="0 0 40 40" className={className} fill="none">
     <defs>
       <linearGradient id="auraGradient" x1="0%" y1="100%" x2="100%" y2="0%">
         <stop offset="0%" stopColor="hsl(220 100% 60%)" />
@@ -208,40 +181,39 @@ const StaticLogo = ({ size, className }: { size: number; className?: string }) =
       </filter>
     </defs>
     <circle cx="20" cy="20" r="16" fill="url(#auraGradient)" filter="url(#glow)" opacity="0.9" />
-    <path
-      d="M20 8 L26 18 L23 18 L23 28 L17 28 L17 18 L14 18 Z"
-      fill="white"
-      fillOpacity="0.95"
-    />
+    <path d="M20 8 L26 18 L23 18 L23 28 L17 28 L17 18 L14 18 Z" fill="white" fillOpacity="0.95" />
   </svg>
 );
 
 interface AuraUpLogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero';
   interactive?: boolean;
   showText?: boolean;
+  showTagline?: boolean;
   className?: string;
 }
 
 const sizeMap = {
-  sm: { canvas: 32, fontSize: 'text-lg' },
-  md: { canvas: 48, fontSize: 'text-xl' },
-  lg: { canvas: 64, fontSize: 'text-2xl' },
-  xl: { canvas: 96, fontSize: 'text-3xl' },
+  sm: { canvas: 36, fontSize: 'text-xl', taglineSize: 'text-[10px]' },
+  md: { canvas: 48, fontSize: 'text-2xl', taglineSize: 'text-xs' },
+  lg: { canvas: 64, fontSize: 'text-3xl', taglineSize: 'text-sm' },
+  xl: { canvas: 96, fontSize: 'text-4xl', taglineSize: 'text-base' },
+  hero: { canvas: 120, fontSize: 'text-6xl', taglineSize: 'text-lg' },
 };
 
 export const AuraUpLogo = ({ 
   size = 'md', 
   interactive = true, 
   showText = true,
+  showTagline = false,
   className = '' 
 }: AuraUpLogoProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [is3DSupported, setIs3DSupported] = useState(true);
-  const { canvas, fontSize } = sizeMap[size];
+  const [tagline] = useState(() => getDynamicText('logoTagline'));
+  const { canvas, fontSize, taglineSize } = sizeMap[size];
 
   useEffect(() => {
-    // Check WebGL support
     try {
       const testCanvas = document.createElement('canvas');
       const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
@@ -253,16 +225,14 @@ export const AuraUpLogo = ({
 
   return (
     <motion.div
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-3 ${className}`}
       onMouseEnter={() => interactive && setIsHovered(true)}
       onMouseLeave={() => interactive && setIsHovered(false)}
-      whileHover={interactive ? { scale: 1.05 } : undefined}
+      whileHover={interactive ? { scale: 1.03 } : undefined}
       whileTap={interactive ? { scale: 0.98 } : undefined}
     >
-      <div 
-        className="relative"
-        style={{ width: canvas, height: canvas }}
-      >
+      {/* Logo Icon */}
+      <div className="relative" style={{ width: canvas, height: canvas }}>
         {is3DSupported ? (
           <Suspense fallback={<StaticLogo size={canvas} />}>
             <Canvas
@@ -277,10 +247,7 @@ export const AuraUpLogo = ({
             </Canvas>
           </Suspense>
         ) : (
-          <motion.div
-            animate={isHovered ? { scale: [1, 1.1, 1] } : undefined}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div animate={isHovered ? { scale: [1, 1.1, 1] } : undefined} transition={{ duration: 0.5 }}>
             <StaticLogo size={canvas} />
           </motion.div>
         )}
@@ -288,25 +255,34 @@ export const AuraUpLogo = ({
         {/* Glow overlay */}
         <motion.div
           className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, hsl(220 100% 60% / 0.3) 0%, transparent 70%)',
-          }}
-          animate={{
-            opacity: isHovered ? 0.8 : 0.4,
-            scale: isHovered ? 1.2 : 1,
-          }}
+          style={{ background: 'radial-gradient(circle, hsl(220 100% 60% / 0.3) 0%, transparent 70%)' }}
+          animate={{ opacity: isHovered ? 0.8 : 0.4, scale: isHovered ? 1.2 : 1 }}
           transition={{ duration: 0.3 }}
         />
       </div>
       
+      {/* Text & Tagline */}
       {showText && (
-        <motion.span 
-          className={`font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] ${fontSize}`}
-          animate={isHovered ? { backgroundPosition: ['0%', '100%'] } : undefined}
-          transition={{ duration: 1, ease: 'linear' }}
-        >
-          AuraUp
-        </motion.span>
+        <div className="flex flex-col">
+          <motion.span 
+            className={`font-black tracking-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] ${fontSize}`}
+            animate={isHovered ? { backgroundPosition: ['0%', '100%'] } : undefined}
+            transition={{ duration: 1, ease: 'linear' }}
+          >
+            AuraUp
+          </motion.span>
+          
+          {showTagline && (
+            <motion.span 
+              className={`text-muted-foreground font-medium ${taglineSize} mt-0.5`}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              {tagline}
+            </motion.span>
+          )}
+        </div>
       )}
     </motion.div>
   );
