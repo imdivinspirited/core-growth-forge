@@ -1,13 +1,13 @@
 /**
  * GlobalNavigation Component
- * 
+ *
  * A professional, enterprise-grade navigation system with:
  * - Animated sidebar with glassmorphism effects
  * - Professional hide/show toggle button with visual feedback
  * - User authentication state integration
  * - Micro-interactions and smooth transitions
  * - Keyboard accessibility support
- * 
+ *
  * Concept: Component Composition Pattern - Breaking UI into reusable pieces
  * Concept: Framer Motion for declarative animations
  * Concept: React Context for global auth state access
@@ -16,7 +16,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   Home,
   BookOpen,
   Briefcase,
@@ -44,10 +44,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import AuraUpLogo from '@/components/logo/AuraUpLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
-import { AuraUpLogo } from '@/components/logo/AuraUpLogo';
 import { DashboardPanel } from '@/components/dashboard/DashboardPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -76,7 +76,7 @@ const GlobalNavigation = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isHovering, setIsHovering] = useState(false);
   const [notifications, setNotifications] = useState(3); // Mock notification count
-  
+
   // Hooks for routing and authentication
   // Concept: Custom Hooks - Reusable stateful logic
   const { user: oAuthUser, signOut: oAuthSignOut } = useAuth();
@@ -120,7 +120,7 @@ const GlobalNavigation = () => {
         });
       }
     };
-    
+
     fetchProfile();
   }, [oAuthUser, customUser]);
 
@@ -152,34 +152,34 @@ const GlobalNavigation = () => {
    * Concept: Configuration-driven UI - Define structure, render dynamically
    */
   const navItems: NavItem[] = [
-    { 
-      label: 'Home', 
-      href: '/', 
+    {
+      label: 'Home',
+      href: '/',
       icon: Home,
       description: 'Return to homepage'
     },
-    { 
-      label: 'Courses', 
-      href: '/courses', 
+    {
+      label: 'Courses',
+      href: '/courses',
       icon: GraduationCap,
       badge: 'New',
       description: 'Browse learning materials'
     },
-    { 
-      label: 'Services', 
-      href: '/services', 
+    {
+      label: 'Services',
+      href: '/services',
       icon: Briefcase,
       description: 'Explore our services'
     },
-    { 
-      label: 'ThinkSpace', 
-      href: '/thinkspace', 
+    {
+      label: 'ThinkSpace',
+      href: '/thinkspace',
       icon: MessageSquare,
       description: 'Community & blogs'
     },
-    { 
-      label: 'Tourism', 
-      href: '/tourism', 
+    {
+      label: 'Tourism',
+      href: '/tourism',
       icon: Globe,
       description: 'Travel experiences'
     },
@@ -199,19 +199,19 @@ const GlobalNavigation = () => {
    * Concept: Animation Variants - Reusable animation states
    */
   const sidebarVariants = {
-    hidden: { 
-      x: -280, 
+    hidden: {
+      x: -280,
       opacity: 0,
-      transition: { 
+      transition: {
         type: 'spring' as const,
         stiffness: 400,
         damping: 40
       }
     },
-    visible: { 
-      x: 0, 
+    visible: {
+      x: 0,
       opacity: 1,
-      transition: { 
+      transition: {
         type: 'spring' as const,
         stiffness: 400,
         damping: 40
@@ -256,11 +256,11 @@ const GlobalNavigation = () => {
               "group"
             )}
             style={{ top: 16 }}
-            animate={{ 
+            animate={{
               left: isNavVisible ? 232 : 16,
               backgroundColor: isHovering ? 'hsl(var(--primary) / 0.1)' : 'transparent',
             }}
-            transition={{ 
+            transition={{
               type: 'spring',
               stiffness: 400,
               damping: 30
@@ -285,7 +285,7 @@ const GlobalNavigation = () => {
                 )}
               </motion.div>
             </AnimatePresence>
-            
+
             {/* Glow effect on hover */}
             <motion.div
               className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl -z-10"
@@ -330,7 +330,7 @@ const GlobalNavigation = () => {
               {navItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
-                
+
                 return (
                   <motion.div
                     key={item.label}
@@ -347,8 +347,8 @@ const GlobalNavigation = () => {
                             "flex items-center gap-3 px-4 py-3 rounded-xl",
                             "transition-all duration-200 group relative",
                             "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                            active 
-                              ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25" 
+                            active
+                              ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25"
                               : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                           )}
                         >
@@ -357,21 +357,21 @@ const GlobalNavigation = () => {
                             active ? "" : "group-hover:scale-110 transition-transform"
                           )} />
                           <span className="font-medium text-sm flex-1">{item.label}</span>
-                          
+
                           {item.badge && (
-                            <Badge 
-                              variant="secondary" 
+                            <Badge
+                              variant="secondary"
                               className={cn(
                                 "text-[10px] px-1.5 py-0",
-                                active 
-                                  ? "bg-primary-foreground/20 text-primary-foreground" 
+                                active
+                                  ? "bg-primary-foreground/20 text-primary-foreground"
                                   : "bg-primary/10 text-primary"
                               )}
                             >
                               {item.badge}
                             </Badge>
                           )}
-                          
+
                           {active && (
                             <motion.div
                               className="absolute right-2"
@@ -395,7 +395,7 @@ const GlobalNavigation = () => {
             <div className="p-4 border-t border-border/30 space-y-3">
               {/* Global Search */}
               <GlobalSearch />
-              
+
               {/* User Section */}
               {isAuthenticated ? (
                 <div className="space-y-2">
@@ -450,9 +450,9 @@ const GlobalNavigation = () => {
                         <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                       </motion.button>
                     </DropdownMenuTrigger>
-                    
-                    <DropdownMenuContent 
-                      align="end" 
+
+                    <DropdownMenuContent
+                      align="end"
                       className="w-56 bg-card/95 backdrop-blur-xl border-border/50"
                       sideOffset={8}
                     >
@@ -465,20 +465,20 @@ const GlobalNavigation = () => {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      
+
                       <DropdownMenuItem onClick={() => setIsDashboardOpen(true)}>
                         <User className="mr-2 h-4 w-4" />
                         Dashboard
                       </DropdownMenuItem>
-                      
+
                       <DropdownMenuItem onClick={() => navigate('/settings')}>
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </DropdownMenuItem>
-                      
+
                       <DropdownMenuSeparator />
-                      
-                      <DropdownMenuItem 
+
+                      <DropdownMenuItem
                         onClick={handleSignOut}
                         className="text-destructive focus:text-destructive"
                       >
@@ -490,8 +490,8 @@ const GlobalNavigation = () => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Button 
-                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20" 
+                  <Button
+                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
                     asChild
                   >
                     <Link to="/auth">
@@ -510,9 +510,9 @@ const GlobalNavigation = () => {
       </AnimatePresence>
 
       {/* Dashboard Panel Overlay */}
-      <DashboardPanel 
-        isOpen={isDashboardOpen} 
-        onClose={() => setIsDashboardOpen(false)} 
+      <DashboardPanel
+        isOpen={isDashboardOpen}
+        onClose={() => setIsDashboardOpen(false)}
       />
 
       {/* Dynamic Content Margin Styles */}
@@ -523,7 +523,7 @@ const GlobalNavigation = () => {
           transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           min-height: 100vh;
         }
-        
+
         @media (max-width: 768px) {
           .main-content {
             margin-left: 0;
