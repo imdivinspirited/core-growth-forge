@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MapPin, Heart, MessageCircle, Share2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/layout/Navbar";
 import {
   Dialog,
   DialogContent,
@@ -157,8 +156,7 @@ const Tourism = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto p-6 mt-16">
+      <div className="container mx-auto p-6 pt-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Tourism Feed</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

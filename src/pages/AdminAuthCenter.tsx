@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Shield, LogOut, Users, Activity, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/layout/Navbar";
 
 interface Session {
   id: string;
@@ -191,8 +190,7 @@ export default function AdminAuthCenter() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto p-6 mt-16">
+      <div className="container mx-auto p-6 pt-8">
         <div className="flex items-center gap-3 mb-6">
           <Shield className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Admin Auth Center</h1>
