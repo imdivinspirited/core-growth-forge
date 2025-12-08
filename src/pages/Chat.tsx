@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/layout/Navbar";
 
 interface Message {
   id: string;
@@ -152,9 +151,8 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto p-6 mt-16">
-        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+      <div className="container mx-auto p-6 pt-8">
+        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-120px)]">
           <Card className="col-span-3 p-4">
             <div className="flex items-center gap-2 mb-4">
               <Users className="w-5 h-5" />

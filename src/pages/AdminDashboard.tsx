@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/layout/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, AlertTriangle, FileCheck, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -75,8 +74,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto p-6 mt-16">
+      <div className="container mx-auto p-6 pt-8">
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
         <div className="grid grid-cols-4 gap-6 mb-6">
