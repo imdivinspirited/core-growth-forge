@@ -1,142 +1,314 @@
 # AuraUp - Professional Development Platform
 
-A comprehensive professional development and personal branding platform built with React, TypeScript, Supabase, and modern web technologies.
+A comprehensive, production-grade professional development and personal branding platform built with React, TypeScript, Supabase, and modern web technologies. Features an advanced **Dynamic Experience System** that provides fresh, engaging experiences on every visit.
+
+---
 
 ## 🚀 Overview
 
 AuraUp is a full-stack professional development platform featuring:
+
 - **Custom Authentication System** - Mobile-first with OTP, OAuth, and 2FA
-- **Dashboard** - Centralized hub for profile, progress, badges, and achievements
-- **Courses** - Interactive learning with progress tracking
-- **AuraLearn** - Skill development and coding challenges
+- **Dynamic Experience System** - Fresh layouts, themes, and animations on each visit
+- **Global Navigation** - Fixed, hideable navbar with smooth Framer Motion transitions
+- **Dashboard Panel** - Slide-in dashboard accessed via profile avatar
+- **Interactive Courses** - Progress tracking with coding challenges
 - **ThinkSpace** - Blogging and community engagement
 - **Modern UI** - GSAP animations, Three.js effects, responsive design
 
-## ✨ Key Features
+---
 
-### 🏠 Home Page
-- Hero section with GSAP ScrollSmoother and Three.js 3D effects
-- Smooth scrolling with professional animations
-- Featured content and announcements
-- Quick access tools and trending content
+## ✨ Architecture
 
-### 📊 Dashboard
-Centralized hub including:
-- **Profile** - Personal information management
-- **Progress** - Learning progress visualization
-- **Badges** - Achievement badges and certifications
-- **Certificates** - Earned certificates display
-- **Statistics** - LeetCode-style progress graphs
-- **Achievements** - Milestone tracking
-- **Social Share** - LinkedIn integration
+### Dynamic Experience System
 
-### 📚 AuraLearn (Learning Hub)
-- Interactive course catalog
-- Progress tracking
-- Coding exercises and challenges
-- Lesson management
-- Certificates upon completion
+The core of AuraUp's engagement strategy. Every visit feels fresh through controlled variation:
 
-### 📝 ThinkSpace (Blog & Community)
-- Blog posts and articles
-- Community discussions
-- Bookmarking system
-- Multi-language support
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  DynamicExperienceProvider                  │
+├─────────────────────────────────────────────────────────────┤
+│  Theme Variants (5)    │  Layout Variants (4)               │
+│  ├── AuraGlow          │  ├── Hero Layout 1-4               │
+│  ├── NeoBlue           │  └── Feature Grid variations       │
+│  ├── MistGreen         │                                    │
+│  ├── VioletNova        │  Animation Presets (4)             │
+│  └── OpalSilver        │  ├── Calm, Energetic               │
+│                        │  └── Subtle, Expressive            │
+├─────────────────────────────────────────────────────────────┤
+│  Dynamic Content System                                      │
+│  ├── getDynamicText('heroTagline')                          │
+│  ├── getDynamicTextMultiple('testimonialQuotes', 3)         │
+│  └── useDynamicContent() hook                               │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### 💼 Services
-- Professional service offerings
-- Booking management
-- Vendor integration
+#### Key Files:
+- `src/context/DynamicExperienceContext.tsx` - Provider & state management
+- `src/lib/dynamicContent.ts` - Content variant pools & selection logic
 
-### ⚙️ Settings
-- **Appearance** - Dark/Light mode toggle (persistent via localStorage)
-- **Preferences** - Notification and language settings
-- **Account** - Account management
-- **Security** - Two-Factor Authentication setup
+### Navigation System
 
-### 🧭 Navigation
-- **Fixed navbar** with show/hide toggle button
-- Persistent visibility preference
-- Mobile-responsive menu
-- Global search functionality (⌘K / Ctrl+K)
+Modern fixed navigation with show/hide capability:
 
-### 🔐 Authentication System
+```
+┌────────────────────────────────────────────────────────────┐
+│  GlobalNavigation (Fixed Header)                           │
+├────────────────────────────────────────────────────────────┤
+│  [≡] Logo   │  Home  AuraLearn  ThinkSpace  │  [👤] [🔍]  │
+├────────────────────────────────────────────────────────────┤
+│                    ↓ Profile Avatar Click                   │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │           DashboardPanel (Slide-in)                   │  │
+│  │  ┌─────────┬─────────┬─────────┬─────────┐           │  │
+│  │  │Progress │ Badges  │ Stats   │Settings │           │  │
+│  │  └─────────┴─────────┴─────────┴─────────┘           │  │
+│  │                                                       │  │
+│  │  [Profile Overview]  [Achievements]  [Actions]        │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+```
 
-#### Authentication Methods
-1. **Mobile Number Authentication**
-   - Sign up/sign in with mobile number and password
-   - Real-time OTP verification via SMS (Twilio)
-   - Secure password hashing (SHA-256)
-   - Rate limiting: 5 OTP/hour, 1/minute per mobile
+#### Key Files:
+- `src/components/layout/GlobalNavigation.tsx` - Main navigation
+- `src/components/dashboard/DashboardPanel.tsx` - Slide-in dashboard
 
-2. **OAuth Integration**
-   - Google Sign-In
-   - GitHub Sign-In
-   - Facebook Sign-In
+### Logo System
 
-3. **Two-Factor Authentication (2FA)**
-   - TOTP-based (Google Authenticator, Authy, etc.)
-   - QR code setup
-   - Recovery codes (10 per activation)
-   - Sign-in challenge for 2FA users
+Three.js-powered animated logo with particle aura effects:
 
-#### Security Features
-- Password security with SHA-256 hashing
-- Rate limiting to prevent brute force
-- JWT-like session tokens with refresh
-- Row-Level Security (RLS) policies
-- Email notifications for security events
-- Audit logging
+```tsx
+// Usage
+<AuraUpLogo size="sm" />                    // Navbar
+<AuraUpLogo variant="hero" showTagline />   // Hero section
+```
 
-### 🔔 Notifications
-- Email alerts via **Resend API**
-- New device sign-in alerts
-- Password change confirmations
-- 2FA activation notifications
+#### Features:
+- Particle aura field (WebGL)
+- Glowing core with pulsing animation
+- Rising arrow element
+- Interactive hover/click effects
+- Static SVG fallback for low-power devices
 
-### 🔧 Admin Features
-- Admin Auth Center (`/admin/auth-center`)
-- Session management
-- User role management
-- Audit log viewing
+---
+
+## 📁 Project Structure
+
+```
+auraup/
+├── public/                      # Static assets
+│   ├── robots.txt
+│   └── favicon.ico
+│
+├── src/
+│   ├── assets/                  # Images, fonts, generated assets
+│   │
+│   ├── components/
+│   │   ├── animations/          # Reusable animation components
+│   │   │   ├── AnimatedButton.tsx
+│   │   │   ├── AnimatedCard.tsx
+│   │   │   ├── FadeInWhenVisible.tsx
+│   │   │   ├── GradientOrb.tsx
+│   │   │   ├── PageTransition.tsx
+│   │   │   ├── ParallaxBackground.tsx
+│   │   │   ├── Preloader.tsx
+│   │   │   └── StaggeredList.tsx
+│   │   │
+│   │   ├── auth/                # Authentication components
+│   │   │   └── ProtectedRoute.tsx
+│   │   │
+│   │   ├── dashboard/           # Dashboard components
+│   │   │   ├── DashboardPanel.tsx
+│   │   │   ├── PerformanceAnalytics.tsx
+│   │   │   ├── ProfileOverview.tsx
+│   │   │   └── QuickLinks.tsx
+│   │   │
+│   │   ├── home/                # Homepage sections
+│   │   │   ├── HeroSection.tsx  # Enhanced with GSAP + Three.js
+│   │   │   ├── FeaturedContent.tsx
+│   │   │   ├── QuickAccessTools.tsx
+│   │   │   └── TrendingContent.tsx
+│   │   │
+│   │   ├── layout/              # Layout components
+│   │   │   └── GlobalNavigation.tsx
+│   │   │
+│   │   ├── logo/                # Brand logo system
+│   │   │   └── AuraUpLogo.tsx   # Three.js animated logo
+│   │   │
+│   │   ├── profile/             # User profile components
+│   │   ├── search/              # Global search
+│   │   ├── settings/            # Settings panels
+│   │   ├── skillspace/          # AuraLearn components
+│   │   ├── thinkspace/          # Blog/community components
+│   │   ├── ui/                  # Shadcn UI components
+│   │   └── workshop/            # Workshop components
+│   │
+│   ├── context/
+│   │   └── DynamicExperienceContext.tsx  # Theme/layout/animation state
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.tsx          # Supabase auth hook
+│   │   ├── useCustomAuth.tsx    # Custom auth system hook
+│   │   ├── use2FA.tsx           # Two-factor auth hook
+│   │   ├── useDebounce.ts       # Debounce utility
+│   │   ├── useReducedMotion.ts  # Accessibility: prefers-reduced-motion
+│   │   └── use-toast.ts         # Toast notifications
+│   │
+│   ├── integrations/
+│   │   └── supabase/
+│   │       ├── client.ts        # Supabase client instance
+│   │       └── types.ts         # Generated TypeScript types
+│   │
+│   ├── lib/
+│   │   ├── animations.ts        # Shared animation configs
+│   │   ├── dynamicContent.ts    # Dynamic text system
+│   │   ├── seo.ts               # SEO utilities
+│   │   ├── utils.ts             # General utilities (cn, etc.)
+│   │   └── validations/
+│   │       └── auth.ts          # Zod validation schemas
+│   │
+│   ├── pages/
+│   │   ├── Index.tsx            # Homepage
+│   │   ├── Auth.tsx             # Authentication page
+│   │   ├── Dashboard.tsx        # User dashboard
+│   │   ├── AuraLearn.tsx        # Learning platform
+│   │   ├── Courses.tsx          # Course catalog
+│   │   ├── ThinkSpace.tsx       # Blog/community
+│   │   ├── Profile.tsx          # User profile
+│   │   ├── Services.tsx         # Services page
+│   │   ├── Settings.tsx         # Settings page
+│   │   ├── Workshop.tsx         # Workshop hub
+│   │   ├── Chat.tsx             # Real-time chat
+│   │   ├── Tourism.tsx          # Tourism feed
+│   │   ├── AdminDashboard.tsx   # Admin panel
+│   │   ├── AdminAuthCenter.tsx  # Auth management
+│   │   └── NotFound.tsx         # 404 page
+│   │
+│   ├── App.tsx                  # Root component with providers
+│   ├── main.tsx                 # Entry point
+│   └── index.css                # Global styles & design tokens
+│
+├── supabase/
+│   ├── config.toml              # Supabase configuration
+│   ├── functions/               # Edge Functions (Deno)
+│   │   ├── auth-signup/
+│   │   ├── auth-signin/
+│   │   ├── auth-verify-otp/
+│   │   ├── auth-session/
+│   │   ├── auth-signout/
+│   │   ├── auth-forgot-password/
+│   │   ├── auth-reset-password/
+│   │   ├── twofactor-generate/
+│   │   ├── twofactor-verify/
+│   │   ├── twofactor-signin/
+│   │   ├── twofactor-disable/
+│   │   ├── send-auth-email/
+│   │   ├── send-notification/
+│   │   ├── send-security-alert/
+│   │   └── ai-recommendations/
+│   └── migrations/              # Database migrations (read-only)
+│
+├── index.html
+├── tailwind.config.ts           # Tailwind + design tokens
+├── vite.config.ts               # Vite configuration
+└── package.json
+```
+
+---
 
 ## 🎨 Design System
 
-### Color Palette
-- Modern, clean palette with HSL colors
-- Full dark mode support (persistent)
-- Semantic tokens for consistency
-- Glass effects and gradients
+### Design Tokens (index.css)
 
-### Animations
-- GSAP ScrollSmoother for smooth scrolling
-- Framer Motion for component animations
-- Three.js for 3D effects
-- Respects `prefers-reduced-motion`
+All styling uses semantic tokens for consistency:
+
+```css
+:root {
+  /* Core Colors */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  
+  /* Semantic Colors */
+  --muted: 210 40% 96.1%;
+  --accent: 210 40% 96.1%;
+  --destructive: 0 84.2% 60.2%;
+  
+  /* Custom Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7));
+  --gradient-hero: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+}
+```
+
+### Theme Switching
+
+Managed via DarkModeSettings in Dashboard:
+- Light / Dark / System
+- Persisted in localStorage
+- Respects `prefers-color-scheme`
+
+---
+
+## 🔐 Authentication System
+
+### Authentication Methods
+
+1. **Mobile Number Authentication**
+   - Sign up/sign in with mobile + password
+   - OTP verification via Twilio SMS
+   - Rate limiting: 5 OTP/hour, 1/minute
+
+2. **OAuth Integration**
+   - Google, GitHub, Facebook
+   - Automatic profile creation
+
+3. **Two-Factor Authentication**
+   - TOTP-based (Google Authenticator, Authy)
+   - QR code setup with recovery codes
+   - Sign-in challenge flow
+
+### Security Features
+
+- SHA-256 password hashing
+- JWT-like session tokens with refresh
+- Row-Level Security (RLS) on all tables
+- Audit logging for security events
+- Email alerts via Resend API
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **Framer Motion** - Animations
-- **GSAP** - Advanced animations & ScrollSmoother
-- **Three.js / React Three Fiber** - 3D graphics
-- **React Router** - Navigation
-- **TanStack Query** - Data fetching
-- **Shadcn/ui** - Component library
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI framework |
+| TypeScript | Type safety |
+| Vite | Build tool |
+| Tailwind CSS | Styling |
+| Framer Motion | Component animations |
+| GSAP + ScrollTrigger | Scroll animations |
+| Three.js / R3F | 3D graphics (logo) |
+| React Router v6 | Routing |
+| TanStack Query | Data fetching |
+| Shadcn/ui | UI components |
 
 ### Backend
-- **Supabase** - Backend as a Service
-- **Edge Functions** - Serverless functions (Deno)
-- **PostgreSQL** - Database
-- **Row-Level Security** - Data protection
+| Technology | Purpose |
+|------------|---------|
+| Supabase | BaaS (Auth, DB, Storage) |
+| Edge Functions (Deno) | Serverless functions |
+| PostgreSQL | Database |
+| Row-Level Security | Data protection |
 
 ### External Services
-- **Twilio** - SMS OTP delivery
-- **Resend** - Email notifications
+| Service | Purpose |
+|---------|---------|
+| Twilio | SMS OTP delivery |
+| Resend | Email notifications |
+
+---
 
 ## 📦 Installation
 
@@ -154,21 +326,12 @@ npm run dev
 
 ## ⚙️ Configuration
 
-### Environment Variables
-
-Create a `.env` file with:
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
 ### Supabase Secrets
 
-Add the following secrets in Supabase Dashboard:
+Add in Supabase Dashboard → Settings → Edge Functions:
 
 ```
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxx
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxx
 TWILIO_AUTH_TOKEN=your_auth_token
 TWILIO_PHONE_NUMBER=+1234567890
 RESEND_API_KEY=re_xxxxxxxxxxxx
@@ -176,126 +339,113 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 
 ### OAuth Setup
 
-#### Google
-1. Create project at [Google Cloud Console](https://console.cloud.google.com/)
-2. Configure OAuth consent screen
-3. Add callback URL from Supabase Dashboard
-4. Configure in Supabase: Settings → Auth → Providers → Google
+1. **Google**: Create OAuth app in Google Cloud Console
+2. **GitHub**: Create OAuth app in Developer Settings
+3. Configure callback URLs in Supabase Auth settings
 
-#### GitHub
-1. Go to GitHub Settings → Developer Settings → OAuth Apps
-2. Create new OAuth app
-3. Set callback URL from Supabase Dashboard
-4. Configure in Supabase: Settings → Auth → Providers → GitHub
-
-## 📁 Project Structure
-
-```
-/
-├── public/                  # Static assets
-├── src/
-│   ├── assets/             # Images, fonts
-│   ├── components/
-│   │   ├── animations/     # Animation components
-│   │   ├── auth/           # Auth components
-│   │   ├── dashboard/      # Dashboard components
-│   │   ├── home/           # Home page components
-│   │   ├── layout/         # Layout components (Navbar, Sidebar)
-│   │   ├── profile/        # Profile components
-│   │   ├── search/         # Global search
-│   │   ├── settings/       # Settings components
-│   │   ├── skillspace/     # Learning components (AuraLearn)
-│   │   ├── thinkspace/     # Blog components
-│   │   ├── ui/             # UI components (Shadcn)
-│   │   └── workshop/       # Workshop components
-│   ├── hooks/              # Custom React hooks
-│   ├── integrations/       # Third-party integrations
-│   ├── lib/                # Utility functions
-│   └── pages/              # Page components
-├── supabase/
-│   ├── functions/          # Edge functions
-│   └── migrations/         # Database migrations
-└── index.html
-```
+---
 
 ## 📡 API Endpoints
 
 ### Authentication
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/auth-signup` | POST | Create new user account |
-| `/auth-signin` | POST | Sign in with credentials |
-| `/auth-verify-otp` | POST | Verify OTP code |
-| `/auth-session` | POST | Validate session token |
-| `/auth-signout` | POST | End user session |
-| `/auth-forgot-password` | POST | Request password reset |
-| `/auth-reset-password` | POST | Reset password with OTP |
+| `/auth-signup` | POST | Create new user |
+| `/auth-signin` | POST | Sign in |
+| `/auth-verify-otp` | POST | Verify OTP |
+| `/auth-session` | POST | Validate session |
+| `/auth-signout` | POST | End session |
 
-### Two-Factor Authentication
+### Two-Factor
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/twofactor-generate` | POST | Generate 2FA secret & QR |
-| `/twofactor-verify` | POST | Verify TOTP & enable 2FA |
-| `/twofactor-signin` | POST | Verify 2FA during sign-in |
+| `/twofactor-generate` | POST | Generate 2FA QR |
+| `/twofactor-verify` | POST | Enable 2FA |
+| `/twofactor-signin` | POST | 2FA challenge |
 | `/twofactor-disable` | POST | Disable 2FA |
+
+---
 
 ## 🗄️ Database Schema
 
 ### Core Tables
-- **custom_users** - User accounts
-- **profiles** - User profiles
-- **user_sessions** - Active sessions
-- **user_roles** - Role assignments
-- **otp_codes** - OTP storage
-- **two_factor_settings** - 2FA configuration
-- **two_factor_recovery_codes** - Recovery codes
-- **audit_logs** - Security events
+- `custom_users` - User accounts
+- `profiles` - User profiles
+- `user_sessions` - Active sessions
+- `user_roles` - RBAC (admin, moderator, user)
+- `otp_codes` - OTP storage
+- `two_factor_settings` - 2FA config
+- `audit_logs` - Security events
 
 ### Content Tables
-- **courses** - Course catalog
-- **lessons** - Course lessons
-- **user_progress** - Learning progress
-- **blogs** - Blog posts
-- **community_posts** - Community content
-- **bookmarks** - User bookmarks
+- `courses` - Course catalog
+- `lessons` - Course lessons
+- `user_progress` - Learning progress
+- `user_badges` - Achievements
+- `blogs` - Blog posts
+- `community_posts` - Community content
+- `bookmarks` - User bookmarks
 
 ### Business Tables
-- **vendors** - Service vendors
-- **bookings** - Service bookings
-- **payments** - Payment records
-- **notifications** - User notifications
+- `vendors` - Service vendors
+- `bookings` - Service bookings
+- `payments` - Payment records
+- `notifications` - User notifications
+- `fraud_alerts` - Security alerts
 
-## 🔒 Security
+---
 
-### Implemented Measures
-- ✅ SHA-256 password hashing
-- ✅ OTP verification for sensitive operations
-- ✅ Rate limiting (5 OTP/hour, 1/minute)
-- ✅ JWT-like session tokens
-- ✅ Row-Level Security (RLS)
-- ✅ Two-Factor Authentication
-- ✅ Email security alerts
-- ✅ Audit logging
+## 🎬 Animation System
 
-### Production Recommendations
-- Use HTTPS only
-- Monitor failed auth attempts
-- Set up SMS/email monitoring
-- Configure SPF/DKIM/DMARC
-- Regular audit log reviews
+### GSAP Integration
+- ScrollTrigger for scroll-based animations
+- Timeline sequencing for hero effects
+- Parallax backgrounds
+
+### Framer Motion
+- Page transitions (AnimatePresence)
+- Component enter/exit animations
+- Layout animations
+
+### Three.js / React Three Fiber
+- AuraUpLogo particle effects
+- Interactive 3D elements
+- WebGL fallback handling
+
+### Accessibility
+- Respects `prefers-reduced-motion`
+- Motion preferences in Settings
+- Static fallbacks for complex animations
+
+---
+
+## 📈 Performance
+
+### Optimization Targets
+- Lighthouse: 90+ all categories
+- FCP: < 1.5s
+- TTI: < 3s
+- CLS: < 0.1
+
+### Implemented Optimizations
+- Code splitting
+- Image optimization
+- Font preloading
+- Tree shaking
+- GPU-accelerated animations
+
+---
 
 ## 🧪 Development
-
-### Available Scripts
 
 ```bash
 # Development server
 npm run dev
 
-# Build for production
+# Production build
 npm run build
 
-# Preview production build
+# Preview build
 npm run preview
 
 # Type checking
@@ -305,40 +455,33 @@ npm run typecheck
 npm run lint
 ```
 
-## 📈 Performance
+---
 
-### Optimization Targets
-- Lighthouse score: 90+ all categories
-- First Contentful Paint: < 1.5s
-- Time to Interactive: < 3s
-- Cumulative Layout Shift: < 0.1
+## 🔒 Security
 
-### Implemented Optimizations
-- Code splitting
-- Image optimization
-- Font preloading
-- Minified assets
-- Tree shaking
-- GSAP ScrollSmoother for smooth scrolling
+### Implemented Measures
+- ✅ Password hashing (SHA-256)
+- ✅ OTP verification
+- ✅ Rate limiting
+- ✅ JWT session tokens
+- ✅ Row-Level Security (RLS)
+- ✅ Two-Factor Authentication
+- ✅ Email security alerts
+- ✅ Audit logging
 
-## 🌐 Deployment
+### Best Practices
+- Never store roles in profile table
+- Use service role only in edge functions
+- Validate all inputs with Zod
+- HTTPS only in production
 
-### Production Build
-```bash
-npm run build
-```
-
-### Environment Requirements
-- Node.js 18+
-- npm 9+
+---
 
 ## 📄 License
 
 MIT
 
-## 🆘 Support
-
-For issues or questions, please open an issue on the repository.
+---
 
 ## 🔗 Resources
 
@@ -348,3 +491,5 @@ For issues or questions, please open an issue on the repository.
 - [GSAP Documentation](https://gsap.com/docs)
 - [Three.js Documentation](https://threejs.org/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Shadcn/ui](https://ui.shadcn.com/)
