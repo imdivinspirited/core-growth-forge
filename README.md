@@ -12,7 +12,7 @@
 
 **Enterprise-grade professional development and personal branding platform**
 
-[Live Demo](https://auraup.app) · [Documentation](https://docs.auraup.app) · [Report Bug](https://github.com/auraup/issues) · [Request Feature](https://github.com/auraup/issues)
+[Live Demo](https://preview--core-growth-forge.lovable.app/) · [Documentation](https://docs.auraup.app) · [Report Bug](https://github.com/auraup/issues) · [Request Feature](https://github.com/auraup/issues)
 
 </div>
 
@@ -972,8 +972,8 @@ Special thanks to our contributors and the open-source community.
 
 <div align="center">
 
-**Made with ❤️ by the AuraUp Team**
+**Made with @divinspirited**
 
-[Website](https://auraup.app) · [Twitter](https://twitter.com/auraup) · [LinkedIn](https://linkedin.com/company/auraup)
+[Website](https://auraup.app) · [Twitter](https://twitter.com/auraup) · [LinkedIn](https://linkedin.com/imdivinspirited)
 
 </div>
