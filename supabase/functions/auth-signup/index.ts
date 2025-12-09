@@ -114,6 +114,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('custom_users')
+      .select('id')
+      .eq('mobile_number', mobileNumber)
+      .eq('country_code', countryCode)
+      .maybeSingle();
+
     if (existingUser) {
       return new Response(
         JSON.stringify({ error: 'User with this mobile number already exists' }),
@@ -187,8 +195,6 @@ Deno.serve(async (req) => {
         requiresOtp: true,
         smsSent: smsResult.success,
       }),
-      { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

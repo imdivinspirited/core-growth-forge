@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.send-security-alert]
 verify_jwt = false
+
+[functions.api-me]
+verify_jwt = false
+
+[functions.api-dashboard]
+verify_jwt = false
