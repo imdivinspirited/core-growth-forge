@@ -151,6 +151,10 @@ const GlobalNavigation = () => {
    * Navigation items configuration
    * Concept: Configuration-driven UI - Define structure, render dynamically
    */
+  /**
+   * Navigation items configuration
+   * Concept: Configuration-driven UI - Define structure, render dynamically
+   */
   const navItems: NavItem[] = [
     {
       label: 'Home',
@@ -166,9 +170,16 @@ const GlobalNavigation = () => {
       description: 'Browse learning materials'
     },
     {
+      label: 'Job Portal',
+      href: '/jobs',
+      icon: Briefcase,
+      badge: 'Hot',
+      description: 'Find your dream job'
+    },
+    {
       label: 'Services',
       href: '/services',
-      icon: Briefcase,
+      icon: BookOpen,
       description: 'Explore our services'
     },
     {
@@ -306,8 +317,8 @@ const GlobalNavigation = () => {
         {isNavVisible && (
           <motion.nav
             className={cn(
-              "fixed left-0 top-0 h-full w-[220px] z-50",
-              "flex flex-col",
+              "fixed left-0 top-0 h-screen w-[220px] z-50",
+              "flex flex-col overflow-hidden",
               "bg-gradient-to-b from-card/98 via-card/95 to-card/90",
               "backdrop-blur-2xl",
               "border-r border-border/40",
@@ -326,7 +337,7 @@ const GlobalNavigation = () => {
             </div>
 
             {/* Main Navigation */}
-            <div className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-thin">
+            <div className="flex-1 p-4 space-y-1.5 overflow-y-auto scrollbar-hide">
               {navItems.map((item, index) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);

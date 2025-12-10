@@ -88,6 +88,16 @@ const experience = {
 - Certificate generation and verification
 - Adaptive learning paths
 
+### 💼 Job Portal
+- Comprehensive job listings with advanced search
+- Category-based filtering (Technology, Design, Marketing, etc.)
+- Job type filters (Full-time, Part-time, Contract, Remote)
+- Location-based search
+- Save and apply to jobs
+- Featured job highlights
+- Company profiles with job counts
+- Real-time job updates
+
 ### 💬 ThinkSpace Community
 - Rich text editor (Markdown + WYSIWYG)
 - Real-time collaborative editing
