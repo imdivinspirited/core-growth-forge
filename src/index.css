@@ -5,6 +5,18 @@
 /* Smooth scrolling for the entire page */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Hide scrollbars globally but keep functionality */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* Respect user's motion preferences */
@@ -452,6 +464,7 @@ html {
 .main-content {
   min-height: 100vh;
   transition: margin-left var(--transition-normal);
+  overflow-x: hidden;
 }
 
 /* Page transition wrapper */
@@ -462,4 +475,20 @@ html {
 /* Smooth appearance for panels */
 .panel-enter {
   animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Fixed navbar - no vertical scroll */
+.fixed-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fixed-nav::-webkit-scrollbar {
+  display: none;
 }

@@ -35,6 +35,7 @@ import Chat from "./pages/Chat";
 import Tourism from "./pages/Tourism";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAuthCenter from "./pages/AdminAuthCenter";
+import JobPortal from "./pages/JobPortal";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const AnimatedRoutes = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/courses" element={<Courses />} />
+        <Route path="/jobs" element={<JobPortal />} />
         <Route path="/services" element={<Services />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
